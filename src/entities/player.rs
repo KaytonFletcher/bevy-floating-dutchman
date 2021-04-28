@@ -4,21 +4,29 @@ use bevy::{
     window::WindowId,
 };
 
-use crate::components::Player;
+use bevy_rapier2d::physics::{RapierConfiguration, RapierPhysicsPlugin, RigidBodyHandleComponent};
+use bevy_rapier2d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
+use bevy_rapier2d::rapier::geometry::ColliderBuilder;
+
+use crate::{components::Player, entities::Motion};
 
 const PLAYER_SCALE: f32 = 0.33;
 const PLAYER_SPRITE_DIM: f32 = 549.;
 const PLAYER_WIDTH: f32 = PLAYER_SPRITE_DIM - 350.;
 const PLAYER_HEIGHT: f32 = PLAYER_SPRITE_DIM - 80.;
-const PLAYER_SPEED: f32 = 16.;
-const PLAYER_ACCEL: f32 = 2.;
+const PLAYER_SPEED: f32 = 200.;
+const PLAYER_ACCEL: f32 = 4.5;
 
 pub fn init_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     windows: Res<Windows>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut rapier_config: ResMut<RapierConfiguration>,
 ) {
+
+    rapier_config.scale = 20.0;
+
     let window = windows.get(WindowId::default()).unwrap();
 
     let player_spawn = (window.width() * 0.5, window.height() * 0.5);
@@ -35,6 +43,9 @@ pub fn init_player(
 
     let texture_handle = asset_server.load("sprites/pirate_ship.png");
 
+    let collider_size_x = PLAYER_WIDTH * PLAYER_SCALE / rapier_config.scale;
+    let collider_size_y = PLAYER_HEIGHT * PLAYER_SCALE / rapier_config.scale;
+
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
@@ -45,20 +56,11 @@ pub fn init_player(
             sprite: Sprite::new(Vec2::new(PLAYER_SPRITE_DIM, PLAYER_SPRITE_DIM)),
             ..Default::default()
         })
-        .insert(Player::new());
-
-    // world
-    //     .create_entity()
-    //     .with(prefab)
-    //     .with(Boundary::new(
-    //         0.,
-    //         dimensions.width(),
-    //         dimensions.height(),
-    //         0.,
-    //     ))
-    //     .with(collider)
-    //     .with(Player::new())
-    //     .with(transform)
-    //     // .with(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
-    //     .build();
+        .insert(Player::new())
+        .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
+        .insert(RigidBodyBuilder::new_dynamic())
+        .insert(ColliderBuilder::cuboid(
+            collider_size_x / 2.0,
+            collider_size_y / 2.0,
+        ));
 }

@@ -1,5 +1,8 @@
+mod movement;
+mod player_movement;
 mod setup;
-mod player;
 
+pub use self::movement::movement;
+pub use self::player_movement::player_movement;
 pub use self::setup::setup;
-pub use self::player::animate_player;
+pub use self::setup::MainCamera;
