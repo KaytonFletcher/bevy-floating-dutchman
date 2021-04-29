@@ -1,11 +1,7 @@
-use bevy::{
-    prelude::*,
-    sprite::collide_aabb::{collide, Collision},
-    window::WindowId,
-};
+use bevy::{prelude::*, window::WindowId};
 
-use bevy_rapier2d::physics::{RapierConfiguration, RapierPhysicsPlugin, RigidBodyHandleComponent};
-use bevy_rapier2d::rapier::dynamics::{RigidBodyBuilder, RigidBodySet};
+use bevy_rapier2d::physics::RapierConfiguration;
+use bevy_rapier2d::rapier::dynamics::RigidBodyBuilder;
 use bevy_rapier2d::rapier::geometry::ColliderBuilder;
 
 use crate::{components::Player, entities::Motion};
@@ -24,7 +20,6 @@ pub fn init_player(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut rapier_config: ResMut<RapierConfiguration>,
 ) {
-
     rapier_config.scale = 20.0;
 
     let window = windows.get(WindowId::default()).unwrap();

@@ -8,11 +8,11 @@ use bevy_rapier2d::rapier::na::Vector2;
 use crate::entities::Motion;
 
 pub fn movement(
-    mut query: Query<(&mut Transform, &mut Motion, &RigidBodyHandleComponent)>,
+    mut query: Query<(&mut Motion, &RigidBodyHandleComponent)>,
     rapier_parameters: Res<RapierConfiguration>,
     mut rigid_bodies: ResMut<RigidBodySet>,
 ) {
-    for (mut transform, mut motion, rigid_body) in query.iter_mut() {
+    for (mut motion, rigid_body) in query.iter_mut() {
         if motion.acceleration.x == 0. {
             motion.velocity.x = 0.;
         }
@@ -51,6 +51,8 @@ pub fn movement(
 
         // transform.translation.x += motion.velocity.x;
         // transform.translation.y += motion.velocity.y;
+
+        println!("Velocity: {:?}", motion.velocity);
 
         // Update the velocity on the rigid_body_component,
         // the bevy_rapier plugin will update the Sprite transform.

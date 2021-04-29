@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use bevy_rapier2d::physics::{RapierPhysicsPlugin};
+use bevy_rapier2d::{physics::RapierPhysicsPlugin, render::RapierRenderPlugin};
 
 mod components;
 mod entities;
@@ -23,5 +23,6 @@ fn main() {
         .add_system(systems::player_movement.system())
         .add_system(systems::movement.system())
         .add_plugin(RapierPhysicsPlugin)
+        // .add_plugin(RapierRenderPlugin)
         .run();
 }
