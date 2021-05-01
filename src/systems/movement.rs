@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use bevy_rapier2d::physics::{RapierConfiguration, RigidBodyHandleComponent};
 use bevy_rapier2d::rapier::dynamics::RigidBodySet;
-// use bevy_rapier2d::rapier::geometry::ColliderBuilder;
 use bevy_rapier2d::rapier::na::Vector2;
 
 use crate::entities::Motion;
@@ -49,10 +48,7 @@ pub fn movement(
             move_delta /= move_delta.magnitude() * rapier_parameters.scale;
         }
 
-        // transform.translation.x += motion.velocity.x;
-        // transform.translation.y += motion.velocity.y;
-
-        println!("Velocity: {:?}", motion.velocity);
+        // println!("Velocity: {:?}", motion.velocity);
 
         // Update the velocity on the rigid_body_component,
         // the bevy_rapier plugin will update the Sprite transform.

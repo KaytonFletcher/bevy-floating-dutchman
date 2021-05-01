@@ -1,8 +1,13 @@
 use bevy::{prelude::*, window::WindowId};
 
-use bevy_rapier2d::physics::RapierConfiguration;
-use bevy_rapier2d::rapier::dynamics::RigidBodyBuilder;
-use bevy_rapier2d::rapier::geometry::ColliderBuilder;
+use bevy_rapier2d::{
+    na::Vector2,
+    physics::RapierConfiguration,
+    rapier::{
+        dynamics::RigidBodyBuilder,
+        geometry::{ColliderBuilder, InteractionGroups},
+    },
+};
 
 use crate::{components::Player, entities::Motion};
 
@@ -21,6 +26,7 @@ pub fn init_player(
     mut rapier_config: ResMut<RapierConfiguration>,
 ) {
     rapier_config.scale = 20.0;
+    rapier_config.gravity = Vector2::<f32>::zeros();
 
     let window = windows.get(WindowId::default()).unwrap();
 
@@ -41,9 +47,16 @@ pub fn init_player(
     let collider_size_x = PLAYER_WIDTH * PLAYER_SCALE / rapier_config.scale;
     let collider_size_y = PLAYER_HEIGHT * PLAYER_SCALE / rapier_config.scale;
 
+    let mut collider_builder =
+        ColliderBuilder::cuboid(collider_size_x / 2.0, collider_size_y / 2.0)
+            .collision_groups(InteractionGroups::new(0b0010, 0b0001));
+
+    collider_builder.is_sensor = true;
+
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
+                translation: Vec3::new(0.0, 0.0, 0.0),
                 scale: Vec3::new(PLAYER_SCALE, PLAYER_SCALE, 1.),
                 ..Default::default()
             },
@@ -54,8 +67,5 @@ pub fn init_player(
         .insert(Player::new())
         .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
         .insert(RigidBodyBuilder::new_dynamic())
-        .insert(ColliderBuilder::cuboid(
-            collider_size_x / 2.0,
-            collider_size_y / 2.0,
-        ));
+        .insert(collider_builder);
 }

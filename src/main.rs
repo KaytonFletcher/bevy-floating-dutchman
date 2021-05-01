@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use bevy_rapier2d::{physics::RapierPhysicsPlugin, render::RapierRenderPlugin};
+use bevy_rapier2d::physics::RapierPhysicsPlugin;
 
 mod components;
 mod entities;
@@ -20,8 +20,10 @@ fn main() {
         // .add_plugin(bevy::wgpu::WgpuPlugin::default())
         .add_startup_system(systems::setup.system())
         .add_startup_system(entities::init_player.system())
+        .add_startup_system(entities::spawn_room_boundary.system())
         .add_system(systems::player_movement.system())
         .add_system(systems::movement.system())
+        .add_system(systems::boundary_system.system())
         .add_plugin(RapierPhysicsPlugin)
         // .add_plugin(RapierRenderPlugin)
         .run();
