@@ -41,19 +41,15 @@ pub fn movement(
             motion.velocity.y = motion.velocity.y.min(max_vel);
         }
 
-        let mut move_delta = Vector2::new(motion.velocity.x, motion.velocity.y);
-        if move_delta != Vector2::zeros() {
-            // Note that the RapierConfiguration::Scale factor is also used here to transform
-            // the move_delta from: 'pixels/second' to 'physics_units/second'
-            move_delta /= move_delta.magnitude() * rapier_parameters.scale;
-        }
+        let mut force = Vec2::new(motion.velocity.x, motion.velocity.y);
 
-        // println!("Velocity: {:?}", motion.velocity);
+        force.normalize();
+        force *= rapier_parameters.scale;
 
         // Update the velocity on the rigid_body_component,
         // the bevy_rapier plugin will update the Sprite transform.
         if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
-            rb.set_linvel(move_delta * motion.max_vel, true);
+            rb.apply_force(force.into(), true);
         }
     }
 }

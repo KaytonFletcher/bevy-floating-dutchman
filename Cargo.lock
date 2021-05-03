@@ -2252,6 +2252,7 @@ checksum = "c70c9e8c5f213c8e93fc8c112ade4edd3ee62062fb897776c23dcebac7932900"
 dependencies = [
  "approx",
  "generic-array",
+ "glam",
  "matrixmultiply",
  "num-complex",
  "num-rational",
@@ -3208,6 +3209,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_rapier2d",
+ "nalgebra",
 ]
 
 [[package]]

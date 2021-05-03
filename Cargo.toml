@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 bevy = "0.5"
 bevy_rapier2d = "0.9.0"
+nalgebra = { version = "0.25", features = [ "convert-glam" ] }

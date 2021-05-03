@@ -1,7 +1,7 @@
-mod player;
-mod motion;
 mod boundary;
+mod motion;
+mod player;
 
-pub use self::player::init_player;
-pub use self::motion::Motion;
 pub use self::boundary::spawn_room_boundary;
+pub use self::motion::Motion;
+pub use self::player::init_player;
