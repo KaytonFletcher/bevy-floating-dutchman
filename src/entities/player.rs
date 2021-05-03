@@ -22,27 +22,16 @@ const PLAYER_ACCEL: f32 = 0.9;
 
 pub fn init_player(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    windows: Res<Windows>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_server: Res<AssetServer>,
     rapier_config: ResMut<RapierConfiguration>,
 ) {
-    let window = windows.get(WindowId::default()).unwrap();
-
-    let player_spawn = (window.width() * 0.5, window.height() * 0.5);
-
-    print!("{:?}", player_spawn);
-
     let texture_handle = asset_server.load("sprites/pirate_ship.png");
 
     let collider_size_x = PLAYER_WIDTH * PLAYER_SCALE / rapier_config.scale;
     let collider_size_y = PLAYER_HEIGHT * PLAYER_SCALE / rapier_config.scale;
 
-    let collider_builder =
-        ColliderBuilder::cuboid(collider_size_x / 2.0, collider_size_y / 2.0)
-            .collision_groups(InteractionGroups::new(0b0010, 0b0001));
-
-    // collider_builder.is_sensor = true;
+    let collider_builder = ColliderBuilder::cuboid(collider_size_x / 2.0, collider_size_y / 2.0);
 
     commands
         .spawn_bundle(SpriteBundle {

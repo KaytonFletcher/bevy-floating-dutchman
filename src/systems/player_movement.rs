@@ -25,7 +25,6 @@ pub fn player_movement(
     mut queries: QuerySet<(
         Query<(
             &Player,
-            &Transform,
             &mut Track,
             &mut Motion,
             &RigidBodyHandleComponent,
@@ -40,7 +39,7 @@ pub fn player_movement(
 ) {
     let camera_transform = queries.q1().iter().next().unwrap().clone();
 
-    for (_, transform, mut latest_mouse_pos, mut motion, rigid_body) in queries.q0_mut().iter_mut()
+    for (_, mut latest_mouse_pos, mut motion, rigid_body) in queries.q0_mut().iter_mut()
     {
         let mut accel = false;
         if keyboard_input.pressed(KeyCode::A) {
@@ -99,8 +98,8 @@ pub fn player_movement(
         // always true
         if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
             // angle between player position and last known mouse position
-            let mut new_angle = (latest_mouse_pos.y - transform.translation.y)
-                .atan2(latest_mouse_pos.x - transform.translation.x)
+            let mut new_angle = (latest_mouse_pos.y - rb.position().translation.vector.y)
+                .atan2(latest_mouse_pos.x - rb.position().translation.vector.x)
                 + (std::f32::consts::PI / 2.);
 
             // subtracts player angle to get the difference in angles
