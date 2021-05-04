@@ -17,12 +17,12 @@ fn main() {
         })
         .add_plugin(RapierPhysicsPlugin)
         .add_plugins(DefaultPlugins)
-        .add_startup_system(systems::setup.system())
-        .add_startup_system(entities::init_player.system())
-        .add_system(systems::player_movement.system())
-        .add_system(systems::player_dampening.system())
-        .add_system(systems::movement.system())
-        .add_system(systems::position_system.system())
+        .add_startup_system(systems::setup.system().label("setup"))
+        .add_startup_system(entities::init_player.system().label("player").after("setup"))
+        .add_system(systems::player_movement.system().label("player_movement"))
+        .add_system(systems::movement.system().label("movement").after("player_movement"))
+        .add_system(systems::player_dampening.system().label("dampening").after("movement").after("player_movement"))
+        .add_system(systems::position_system.system().after("dampening"))
         // .add_plugin(RapierRenderPlugin)
         .run();
 }
