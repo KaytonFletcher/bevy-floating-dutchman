@@ -1,11 +1,8 @@
-use bevy::{prelude::*, window::WindowId};
+use bevy::prelude::*;
 
 use bevy_rapier2d::{
     physics::RapierConfiguration,
-    rapier::{
-        dynamics::RigidBodyBuilder,
-        geometry::{ColliderBuilder, InteractionGroups},
-    },
+    rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder},
 };
 
 use crate::{
@@ -17,7 +14,7 @@ const PLAYER_SCALE: f32 = 0.33;
 const PLAYER_SPRITE_DIM: f32 = 549.;
 const PLAYER_WIDTH: f32 = PLAYER_SPRITE_DIM - 350.;
 const PLAYER_HEIGHT: f32 = PLAYER_SPRITE_DIM - 80.;
-const PLAYER_SPEED: f32 = 3.0;
+const PLAYER_SPEED: f32 = 15.0;
 const PLAYER_ACCEL: f32 = 0.9;
 
 pub fn init_player(

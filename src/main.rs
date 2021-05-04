@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::schedule::ReportExecutionOrderAmbiguities, prelude::*};
 
 use bevy_rapier2d::physics::RapierPhysicsPlugin;
 
@@ -18,11 +18,28 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin)
         .add_plugins(DefaultPlugins)
         .add_startup_system(systems::setup.system().label("setup"))
-        .add_startup_system(entities::init_player.system().label("player").after("setup"))
+        .add_startup_system(
+            entities::init_player
+                .system()
+                .label("player")
+                .after("setup"),
+        )
         .add_system(systems::player_movement.system().label("player_movement"))
-        .add_system(systems::movement.system().label("movement").after("player_movement"))
-        .add_system(systems::player_dampening.system().label("dampening").after("movement").after("player_movement"))
+        .add_system(
+            systems::movement
+                .system()
+                .label("movement")
+                .after("player_movement"),
+        )
+        .add_system(
+            systems::player_dampening
+                .system()
+                .label("dampening")
+                .after("movement")
+                .after("player_movement"),
+        )
         .add_system(systems::position_system.system().after("dampening"))
+        .insert_resource(ReportExecutionOrderAmbiguities)
         // .add_plugin(RapierRenderPlugin)
         .run();
 }

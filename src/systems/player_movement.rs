@@ -4,7 +4,7 @@ use crate::{
     systems::MainCamera,
 };
 
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier2d::{physics::{RigidBodyHandleComponent, RapierConfiguration}, rapier::dynamics::RigidBodySet};
 
 use bevy::prelude::*;
 
@@ -36,6 +36,7 @@ pub fn player_movement(
     windows: Res<Windows>,
     mut evr_cursor: EventReader<CursorMoved>,
     mut rigid_bodies: ResMut<RigidBodySet>,
+    rapier_parameters: Res<RapierConfiguration>,
 ) {
     let camera_transform = queries.q1().iter().next().unwrap().clone();
 
@@ -98,14 +99,14 @@ pub fn player_movement(
         // always true
         if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
             // angle between player position and last known mouse position
-            let mut new_angle = (latest_mouse_pos.y - rb.position().translation.vector.y)
-                .atan2(latest_mouse_pos.x - rb.position().translation.vector.x)
+            let mut new_angle = ((latest_mouse_pos.y/rapier_parameters.scale) - rb.position().translation.vector.y)
+                .atan2((latest_mouse_pos.x/rapier_parameters.scale) - rb.position().translation.vector.x)
                 + (std::f32::consts::PI / 2.);
 
             // subtracts player angle to get the difference in angles
             new_angle -= rb.position().rotation.angle();
 
-            let f = 12.0;
+            let f = 60.0;
             let torque = f * new_angle.sin();
 
             rb.apply_torque_impulse(torque, true);

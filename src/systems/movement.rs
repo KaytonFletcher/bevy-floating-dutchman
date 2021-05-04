@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-use bevy_rapier2d::physics::{RapierConfiguration, RigidBodyHandleComponent};
-use bevy_rapier2d::rapier::dynamics::RigidBodySet;
-use bevy_rapier2d::rapier::na::Vector2;
+use bevy_rapier2d::{
+    physics::{RapierConfiguration, RigidBodyHandleComponent},
+    rapier::dynamics::RigidBodySet,
+};
 
 use crate::entities::Motion;
 
@@ -41,10 +42,7 @@ pub fn movement(
             motion.velocity.y = motion.velocity.y.min(max_vel);
         }
 
-        let mut force = Vec2::new(motion.velocity.x, motion.velocity.y);
-
-        force.normalize();
-        force *= rapier_parameters.scale;
+        let force = Vec2::new(motion.velocity.x, motion.velocity.y) * rapier_parameters.scale;
 
         // Update the velocity on the rigid_body_component,
         // the bevy_rapier plugin will update the Sprite transform.
