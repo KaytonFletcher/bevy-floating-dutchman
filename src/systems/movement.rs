@@ -5,9 +5,33 @@ use bevy_rapier2d::{
     rapier::dynamics::RigidBodySet,
 };
 
-use crate::entities::Motion;
+use crate::{components::Track, entities::Motion};
 
-pub fn movement(
+pub fn update_tracking(
+    mut query: Query<(&Track, &RigidBodyHandleComponent)>,
+    mut rigid_bodies: ResMut<RigidBodySet>,
+    rapier_parameters: Res<RapierConfiguration>,
+) {
+    for (track, rigid_body) in query.iter_mut() {
+        // always true
+        if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
+            // angle between player position and last known mouse position
+            let mut new_angle = ((track.angle.y / rapier_parameters.scale)
+                - rb.position().translation.vector.y)
+                .atan2(
+                    (track.angle.x / rapier_parameters.scale) - rb.position().translation.vector.x,
+                )
+                + track.get_offset();
+
+            // subtracts player angle to get the difference in angles
+            new_angle -= rb.position().rotation.angle();
+
+            rb.apply_torque_impulse(new_angle.sin() * track.rotate_speed, true);
+        }
+    }
+}
+
+pub fn update_movement(
     mut query: Query<(&mut Motion, &RigidBodyHandleComponent)>,
     rapier_parameters: Res<RapierConfiguration>,
     mut rigid_bodies: ResMut<RigidBodySet>,

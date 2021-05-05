@@ -19,18 +19,19 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(systems::setup.system().label("setup"))
         .add_startup_system(
-            entities::init_player
+            entities::spawn_player
                 .system()
                 .label("player")
                 .after("setup"),
         )
         .add_system(systems::player_movement.system().label("player_movement"))
         .add_system(
-            systems::movement
+            systems::update_movement
                 .system()
                 .label("movement")
                 .after("player_movement"),
         )
+        .add_system(systems::update_tracking.system().after("movement"))
         .add_system(
             systems::player_dampening
                 .system()

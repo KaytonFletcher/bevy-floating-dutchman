@@ -4,7 +4,7 @@ use crate::{
     systems::MainCamera,
 };
 
-use bevy_rapier2d::{physics::{RigidBodyHandleComponent, RapierConfiguration}, rapier::dynamics::RigidBodySet};
+use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
 use bevy::prelude::*;
 
@@ -21,27 +21,21 @@ pub fn player_dampening(
     }
 }
 
+pub fn enemy_tracking(query: Query<(&mut Track), Without<Player>>) {}
+
 pub fn player_movement(
     mut queries: QuerySet<(
-        Query<(
-            &Player,
-            &mut Track,
-            &mut Motion,
-            &RigidBodyHandleComponent,
-        )>,
+        Query<(&mut Track, &mut Motion), With<Player>>,
         Query<&Transform, With<MainCamera>>,
     )>,
     keyboard_input: Res<Input<KeyCode>>,
     // need to get window dimensions for mouse position
     windows: Res<Windows>,
     mut evr_cursor: EventReader<CursorMoved>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
-    rapier_parameters: Res<RapierConfiguration>,
 ) {
     let camera_transform = queries.q1().iter().next().unwrap().clone();
 
-    for (_, mut latest_mouse_pos, mut motion, rigid_body) in queries.q0_mut().iter_mut()
-    {
+    for (mut latest_mouse_pos, mut motion) in queries.q0_mut().iter_mut() {
         let mut accel = false;
         if keyboard_input.pressed(KeyCode::A) {
             motion.acceleration.x = -motion.max_accel;
@@ -90,26 +84,8 @@ pub fn player_movement(
             // apply the camera transform
             let mouse_pos = camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
 
-            // println!("Mouse Position: {:?}", mouse_pos);
-
-            latest_mouse_pos.x = mouse_pos.x;
-            latest_mouse_pos.y = mouse_pos.y;
-        }
-
-        // always true
-        if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
-            // angle between player position and last known mouse position
-            let mut new_angle = ((latest_mouse_pos.y/rapier_parameters.scale) - rb.position().translation.vector.y)
-                .atan2((latest_mouse_pos.x/rapier_parameters.scale) - rb.position().translation.vector.x)
-                + (std::f32::consts::PI / 2.);
-
-            // subtracts player angle to get the difference in angles
-            new_angle -= rb.position().rotation.angle();
-
-            let f = 60.0;
-            let torque = f * new_angle.sin();
-
-            rb.apply_torque_impulse(torque, true);
+            // update the position the player is tracking (rotating towards mouse pos)
+            latest_mouse_pos.angle = mouse_pos.into();
         }
     }
 }
