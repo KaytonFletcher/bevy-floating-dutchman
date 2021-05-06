@@ -9,18 +9,14 @@ use crate::{components::Track, entities::Motion};
 
 pub fn update_tracking(
     mut query: Query<(&Track, &RigidBodyHandleComponent)>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
-    rapier_parameters: Res<RapierConfiguration>,
+    mut rigid_bodies: ResMut<RigidBodySet>
 ) {
     for (track, rigid_body) in query.iter_mut() {
         // always true
         if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
             // angle between player position and last known mouse position
-            let mut new_angle = ((track.angle.y / rapier_parameters.scale)
-                - rb.position().translation.vector.y)
-                .atan2(
-                    (track.angle.x / rapier_parameters.scale) - rb.position().translation.vector.x,
-                )
+            let mut new_angle = (track.pos.y - rb.position().translation.vector.y)
+                .atan2(track.pos.x - rb.position().translation.vector.x)
                 + track.get_offset();
 
             // subtracts player angle to get the difference in angles
@@ -28,6 +24,19 @@ pub fn update_tracking(
 
             rb.apply_torque_impulse(new_angle.sin() * track.rotate_speed, true);
         }
+    }
+}
+
+pub fn physics_dampening(
+    query: Query<&RigidBodyHandleComponent>,
+    time: Res<Time>,
+    mut rigid_bodies: ResMut<RigidBodySet>,
+) {
+    for rb_handle in query.iter() {
+        let elapsed = time.delta_seconds();
+        let rb = rigid_bodies.get_mut(rb_handle.handle()).unwrap();
+        rb.set_angvel(rb.angvel() * 0.005f32.powf(elapsed), false);
+        rb.set_linvel(rb.linvel() * 0.8f32.powf(elapsed), false);
     }
 }
 

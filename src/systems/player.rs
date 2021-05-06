@@ -4,38 +4,25 @@ use crate::{
     systems::MainCamera,
 };
 
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
-
 use bevy::prelude::*;
 
-pub fn player_dampening(
-    query: Query<(&Player, &RigidBodyHandleComponent)>,
-    time: Res<Time>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
-) {
-    for (_, rb_handle) in query.iter() {
-        let elapsed = time.delta_seconds();
-        let rb = rigid_bodies.get_mut(rb_handle.handle()).unwrap();
-        rb.set_angvel(rb.angvel() * 0.005f32.powf(elapsed), false);
-        rb.set_linvel(rb.linvel() * 0.8f32.powf(elapsed), false);
-    }
-}
-
-pub fn enemy_tracking(query: Query<(&mut Track), Without<Player>>) {}
+use bevy_rapier2d::physics::RapierConfiguration;
 
 pub fn player_movement(
     mut queries: QuerySet<(
         Query<(&mut Track, &mut Motion), With<Player>>,
         Query<&Transform, With<MainCamera>>,
     )>,
+    mut evr_cursor: EventReader<CursorMoved>,
+
     keyboard_input: Res<Input<KeyCode>>,
     // need to get window dimensions for mouse position
     windows: Res<Windows>,
-    mut evr_cursor: EventReader<CursorMoved>,
+    rapier_parameters: Res<RapierConfiguration>,
 ) {
     let camera_transform = queries.q1().iter().next().unwrap().clone();
 
-    for (mut latest_mouse_pos, mut motion) in queries.q0_mut().iter_mut() {
+    for (mut track_mouse, mut motion) in queries.q0_mut().iter_mut() {
         let mut accel = false;
         if keyboard_input.pressed(KeyCode::A) {
             motion.acceleration.x = -motion.max_accel;
@@ -85,7 +72,7 @@ pub fn player_movement(
             let mouse_pos = camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
 
             // update the position the player is tracking (rotating towards mouse pos)
-            latest_mouse_pos.angle = mouse_pos.into();
+            track_mouse.pos = (mouse_pos / rapier_parameters.scale).into();
         }
     }
 }

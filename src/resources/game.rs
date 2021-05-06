@@ -1,5 +1,5 @@
-// use crate::entities::player;
-// #[derive(Default)]
-// struct Game {
-//     player: Player,
-// }
+use bevy::prelude::Entity;
+
+pub struct Game {
+    pub player: Option<Entity>,
+}

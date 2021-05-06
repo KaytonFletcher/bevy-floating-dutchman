@@ -1,1 +1,3 @@
-pub mod game;
+mod game;
+
+pub use game::Game;

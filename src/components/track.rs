@@ -1,7 +1,7 @@
 use bevy::prelude::Vec2;
 
 pub struct Track {
-    pub angle: Vec2,
+    pub pos: Vec2,
     pub rotate_speed: f32,
     offset: f32,
 }
@@ -9,7 +9,7 @@ pub struct Track {
 impl Track {
     pub fn new(rotate_speed: f32, offset: f32) -> Self {
         Self {
-            angle: Vec2::ZERO,
+            pos: Vec2::ZERO,
             rotate_speed,
             offset,
         }
