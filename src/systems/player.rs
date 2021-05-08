@@ -1,6 +1,6 @@
 use crate::{
+    components::Motion,
     components::{Player, Track},
-    entities::Motion,
     systems::MainCamera,
 };
 
@@ -23,39 +23,23 @@ pub fn player_movement(
     let camera_transform = queries.q1().iter().next().unwrap().clone();
 
     for (mut track_mouse, mut motion) in queries.q0_mut().iter_mut() {
-        let mut accel = false;
+        motion.direction.x = 0.0;
+        motion.direction.y = 0.0;
+
         if keyboard_input.pressed(KeyCode::A) {
-            motion.acceleration.x = -motion.max_accel;
-            accel = true;
+            motion.direction.x -= 1.0;
         }
 
         if keyboard_input.pressed(KeyCode::D) {
-            if accel {
-                motion.acceleration.x = 0.;
-            } else {
-                motion.acceleration.x = motion.max_accel;
-                accel = true;
-            }
+            motion.direction.x += 1.0;
         }
-
-        if !accel {
-            motion.acceleration.x = 0.0;
-        }
-
-        accel = false;
 
         if keyboard_input.pressed(KeyCode::W) {
-            motion.acceleration.y = motion.max_accel;
-            accel = true;
+            motion.direction.y += 1.0;
         }
 
         if keyboard_input.pressed(KeyCode::S) {
-            motion.acceleration.y = -motion.max_accel;
-            accel = true;
-        }
-
-        if !accel {
-            motion.acceleration.y = 0.0;
+            motion.direction.y -= 1.0;
         }
 
         // has a new mouse event occured

@@ -33,9 +33,9 @@ fn main() {
         )
         .add_system(systems::player_movement.system().label("player_movement"))
         .add_system(
-            systems::enemy_tracking
+            systems::tracking
                 .system()
-                .label("enemy_tracking")
+                .label("tracking")
                 .after("player_movement"),
         )
         .add_system(

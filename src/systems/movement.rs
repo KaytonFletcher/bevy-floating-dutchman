@@ -5,11 +5,11 @@ use bevy_rapier2d::{
     rapier::dynamics::RigidBodySet,
 };
 
-use crate::{components::Track, entities::Motion};
+use crate::{components::Motion, components::Track};
 
 pub fn update_tracking(
     mut query: Query<(&Track, &RigidBodyHandleComponent)>,
-    mut rigid_bodies: ResMut<RigidBodySet>
+    mut rigid_bodies: ResMut<RigidBodySet>,
 ) {
     for (track, rigid_body) in query.iter_mut() {
         // always true
@@ -28,15 +28,15 @@ pub fn update_tracking(
 }
 
 pub fn physics_dampening(
-    query: Query<&RigidBodyHandleComponent>,
+    query: Query<(&RigidBodyHandleComponent, &Motion)>,
     time: Res<Time>,
     mut rigid_bodies: ResMut<RigidBodySet>,
 ) {
-    for rb_handle in query.iter() {
+    for (rb_handle, motion) in query.iter() {
         let elapsed = time.delta_seconds();
         let rb = rigid_bodies.get_mut(rb_handle.handle()).unwrap();
         rb.set_angvel(rb.angvel() * 0.005f32.powf(elapsed), false);
-        rb.set_linvel(rb.linvel() * 0.8f32.powf(elapsed), false);
+        rb.set_linvel(rb.linvel().cap_magnitude(motion.max_vel * elapsed), false);
     }
 }
 
@@ -46,41 +46,45 @@ pub fn update_movement(
     mut rigid_bodies: ResMut<RigidBodySet>,
 ) {
     for (mut motion, rigid_body) in query.iter_mut() {
-        if motion.acceleration.x == 0. {
-            motion.velocity.x = 0.;
-        }
+        // if motion.acceleration.x == 0. {
+        //     motion.velocity.x = 0.;
+        // }
 
-        if motion.acceleration.y == 0. {
-            motion.velocity.y = 0.;
-        }
+        // if motion.acceleration.y == 0. {
+        //     motion.velocity.y = 0.;
+        // }
 
-        motion.velocity.x += motion.acceleration.x;
-        motion.velocity.y += motion.acceleration.y;
+        // motion.velocity.x += motion.acceleration.x;
+        // motion.velocity.y += motion.acceleration.y;
 
-        let max_vel = if motion.acceleration.y != 0. && motion.acceleration.x != 0. {
-            motion.max_vel * 0.707
-        } else {
-            motion.max_vel
-        };
+        // let max_vel = if motion.acceleration.y != 0. && motion.acceleration.x != 0. {
+        //     motion.max_vel * 0.707
+        // } else {
+        //     motion.max_vel
+        // };
 
-        if motion.acceleration.x < 0. {
-            motion.velocity.x = motion.velocity.x.max(-max_vel);
-        } else if motion.acceleration.x > 0. {
-            motion.velocity.x = motion.velocity.x.min(max_vel);
-        }
+        // if motion.acceleration.x < 0. {
+        //     motion.velocity.x = motion.velocity.x.max(-max_vel);
+        // } else if motion.acceleration.x > 0. {
+        //     motion.velocity.x = motion.velocity.x.min(max_vel);
+        // }
 
-        if motion.acceleration.y < 0. {
-            motion.velocity.y = motion.velocity.y.max(-max_vel);
-        } else if motion.acceleration.y > 0. {
-            motion.velocity.y = motion.velocity.y.min(max_vel);
-        }
+        // if motion.acceleration.y < 0. {
+        //     motion.velocity.y = motion.velocity.y.max(-max_vel);
+        // } else if motion.acceleration.y > 0. {
+        //     motion.velocity.y = motion.velocity.y.min(max_vel);
+        // }
 
-        let force = Vec2::new(motion.velocity.x, motion.velocity.y) * rapier_parameters.scale;
+        // let force = Vec2::new(motion.velocity.x, motion.velocity.y) * rapier_parameters.scale;
 
         // Update the velocity on the rigid_body_component,
         // the bevy_rapier plugin will update the Sprite transform.
         if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
-            rb.apply_force(force.into(), true);
+            // println!("Applying force: {:?}", motion.direction * motion.force);
+            rb.apply_force(
+                (motion.direction * motion.force * rapier_parameters.scale).into(),
+                true,
+            );
         }
     }
 }

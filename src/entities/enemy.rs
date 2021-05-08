@@ -7,11 +7,15 @@ use bevy_rapier2d::{
     rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder},
 };
 
-use crate::{components::Track, entities::Motion};
+use crate::{
+    components::{Follow, Motion, Track},
+    resources::Game,
+};
 
 pub fn spawn_follow_enemy(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    game: Res<Game>,
     asset_server: Res<AssetServer>,
     rapier_config: ResMut<RapierConfiguration>,
 ) {
@@ -24,6 +28,9 @@ pub fn spawn_follow_enemy(
 
     let texture_handle = asset_server.load("sprites/green_fighter.png");
 
+    let mut tracker = Track::new(ENEMY_ROTATE_SPEED, -PI / 2.0);
+    tracker.with_entity(game.player.unwrap());
+
     commands
         .spawn_bundle(SpriteBundle {
             transform: Transform {
@@ -35,7 +42,8 @@ pub fn spawn_follow_enemy(
             ..Default::default()
         })
         .insert(Motion::new(ENEMY_SPEED, ENEMY_ACCEL))
-        .insert(Track::new(ENEMY_ROTATE_SPEED, -PI/2.0))
+        .insert(tracker)
+        .insert(Follow::new(game.player.unwrap()))
         .insert(RigidBodyBuilder::new_dynamic().translation(20.0, 20.0))
         .insert(ColliderBuilder::cuboid(
             ENEMY_WIDTH / rapier_config.scale / 2.0,

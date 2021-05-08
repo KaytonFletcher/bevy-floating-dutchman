@@ -1,19 +1,27 @@
-use bevy::prelude::Vec2;
+use bevy::prelude::{Entity, Vec2};
 
 pub struct Track {
     pub pos: Vec2,
     pub rotate_speed: f32,
+    pub entity_tracked: Option<Entity>,
     offset: f32,
 }
 
 impl Track {
-    pub fn new(rotate_speed: f32, offset: f32) -> Self {
+    pub fn new(rotate_speed: f32, offset: f32) -> Track {
         Self {
             pos: Vec2::ZERO,
+            entity_tracked: None,
             rotate_speed,
             offset,
         }
     }
 
-    pub fn get_offset(&self) -> f32 { self.offset }
+    pub fn with_entity(&mut self, entity: Entity) {
+        self.entity_tracked = Some(entity);
+    }
+
+    pub fn get_offset(&self) -> f32 {
+        self.offset
+    }
 }

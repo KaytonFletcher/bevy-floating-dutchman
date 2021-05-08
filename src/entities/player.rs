@@ -7,7 +7,7 @@ use bevy_rapier2d::{
 
 use crate::{
     components::{Player, Track},
-    entities::Motion,
+    components::Motion,
     resources::Game,
 };
 
@@ -22,8 +22,8 @@ pub fn spawn_player(
     const PLAYER_SPRITE_DIM: f32 = 549.;
     const PLAYER_WIDTH: f32 = PLAYER_SPRITE_DIM - 350.;
     const PLAYER_HEIGHT: f32 = PLAYER_SPRITE_DIM - 80.;
-    const PLAYER_SPEED: f32 = 15.0;
-    const PLAYER_ACCEL: f32 = 0.9;
+    const PLAYER_SPEED: f32 = 50.0*20.0;
+    const PLAYER_ACCEL: f32 = 30.0;
     const PLAYER_ROTATE_SPEED: f32 = 60.0;
     const PLAYER_SPRITE_OFFSET: f32 = std::f32::consts::PI / 2.0;
 
