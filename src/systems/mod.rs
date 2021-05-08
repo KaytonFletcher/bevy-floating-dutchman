@@ -1,14 +1,15 @@
 mod boundary;
 mod movement;
 mod player;
-mod enemy;
 mod setup;
+mod collision;
 
 pub use self::boundary::position_system;
+pub use self::movement::follow;
+pub use self::movement::tracking;
 pub use self::movement::update_movement;
 pub use self::movement::update_tracking;
-pub use self::player::player_movement;
-pub use self::enemy::tracking;
-pub use self::enemy::follow;
+pub use self::player::player_input;
 pub use self::setup::setup;
 pub use self::setup::MainCamera;
+pub use collision::collision;

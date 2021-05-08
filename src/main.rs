@@ -31,24 +31,25 @@ fn main() {
                 .label("enemy")
                 .after("player"),
         )
-        .add_system(systems::player_movement.system().label("player_movement"))
+        .add_system(systems::player_input.system().label("player_input"))
         .add_system(systems::follow.system().label("follow"))
         .add_system(
             systems::tracking
                 .system()
                 .label("tracking")
-                .after("player_movement")
+                .after("player_input")
                 .after("follow"),
         )
         .add_system(
             systems::update_movement
                 .system()
                 .label("movement")
-                .after("player_movement")
+                .after("player_input")
                 .after("enemy_tracking"),
         )
         .add_system(systems::update_tracking.system().after("movement"))
         .add_system(systems::position_system.system().after("movement"))
+        .add_system(systems::collision.system())
         .insert_resource(ReportExecutionOrderAmbiguities)
         // .add_plugin(RapierRenderPlugin)
         .run();

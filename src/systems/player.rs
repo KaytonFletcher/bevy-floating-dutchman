@@ -8,21 +8,19 @@ use bevy::prelude::*;
 
 use bevy_rapier2d::physics::RapierConfiguration;
 
-pub fn player_movement(
-    mut queries: QuerySet<(
-        Query<(&mut Track, &mut Motion), With<Player>>,
-        Query<&Transform, With<MainCamera>>,
-    )>,
+pub fn player_input(
+    mut player_query: Query<(&mut Track, &mut Motion), With<Player>>,
     mut evr_cursor: EventReader<CursorMoved>,
-
+    camera_query: Query<&Transform, With<MainCamera>>,
     keyboard_input: Res<Input<KeyCode>>,
     // need to get window dimensions for mouse position
     windows: Res<Windows>,
     rapier_parameters: Res<RapierConfiguration>,
 ) {
-    let camera_transform = queries.q1().iter().next().unwrap().clone();
+    // assumes only one camera has been given the MainCamera component
+    let camera_transform = camera_query.iter().next().unwrap().clone();
 
-    for (mut track_mouse, mut motion) in queries.q0_mut().iter_mut() {
+    for (mut track_mouse, mut motion) in player_query.iter_mut() {
         motion.direction.x = 0.0;
         motion.direction.y = 0.0;
 

@@ -24,7 +24,7 @@ pub fn spawn_player(
     const PLAYER_HEIGHT: f32 = PLAYER_SPRITE_DIM - 80.;
     const PLAYER_SPEED: f32 = 400.0;
     const PLAYER_ACCEL: f32 = 50.0;
-    const PLAYER_ROTATE_SPEED: f32 = 60.0;
+    const PLAYER_ROTATE_ACCEL: f32 = 5.0;
     const PLAYER_SPRITE_OFFSET: f32 = std::f32::consts::PI / 2.0;
 
     let texture_handle = asset_server.load("sprites/pirate_ship.png");
@@ -32,30 +32,33 @@ pub fn spawn_player(
     let collider_size_x = PLAYER_WIDTH * PLAYER_SCALE / rapier_config.scale;
     let collider_size_y = PLAYER_HEIGHT * PLAYER_SCALE / rapier_config.scale;
 
-    game.player = Some(
-        commands
-            .spawn_bundle(SpriteBundle {
-                transform: Transform {
-                    translation: Vec3::new(0.0, 0.0, 1.0),
-                    scale: Vec3::new(PLAYER_SCALE, PLAYER_SCALE, 1.),
-                    ..Default::default()
-                },
-                material: materials.add(texture_handle.into()),
-                ..Default::default()
-            })
-            .insert(Player::new())
-            .insert(Health::new(4.0))
-            .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
-            .insert(Track::new(PLAYER_ROTATE_SPEED, PLAYER_SPRITE_OFFSET))
-            .insert(
-                RigidBodyBuilder::new_dynamic()
-                    .linear_damping(1.0)
-                    .angular_damping(6.0),
-            )
-            .insert(ColliderBuilder::cuboid(
-                collider_size_x / 2.0,
-                collider_size_y / 2.0,
-            ))
-            .id(),
-    );
+    let mut player_builder = commands.spawn_bundle(SpriteBundle {
+        transform: Transform {
+            translation: Vec3::new(0.0, 0.0, 1.0),
+            scale: Vec3::new(PLAYER_SCALE, PLAYER_SCALE, 1.),
+            ..Default::default()
+        },
+        material: materials.add(texture_handle.into()),
+        ..Default::default()
+    });
+
+    let player_entity = player_builder.id();
+
+    game.player = Some(player_entity);
+
+    player_builder
+        .insert(Player::new())
+        .insert(Health::new(4.0))
+        .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
+        .insert(Track::new(PLAYER_ROTATE_ACCEL, PLAYER_SPRITE_OFFSET))
+        .insert(
+            RigidBodyBuilder::new_dynamic()
+                .linear_damping(1.0)
+                .angular_damping(2.0)
+                .user_data(player_entity.to_bits() as u128),
+        )
+        .insert(ColliderBuilder::cuboid(
+            collider_size_x / 2.0,
+            collider_size_y / 2.0,
+        ));
 }
