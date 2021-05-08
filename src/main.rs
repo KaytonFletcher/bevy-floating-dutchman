@@ -32,11 +32,13 @@ fn main() {
                 .after("player"),
         )
         .add_system(systems::player_movement.system().label("player_movement"))
+        .add_system(systems::follow.system().label("follow"))
         .add_system(
             systems::tracking
                 .system()
                 .label("tracking")
-                .after("player_movement"),
+                .after("player_movement")
+                .after("follow"),
         )
         .add_system(
             systems::update_movement
@@ -46,13 +48,7 @@ fn main() {
                 .after("enemy_tracking"),
         )
         .add_system(systems::update_tracking.system().after("movement"))
-        .add_system(
-            systems::physics_dampening
-                .system()
-                .label("dampening")
-                .after("movement"),
-        )
-        .add_system(systems::position_system.system().after("dampening"))
+        .add_system(systems::position_system.system().after("movement"))
         .insert_resource(ReportExecutionOrderAmbiguities)
         // .add_plugin(RapierRenderPlugin)
         .run();

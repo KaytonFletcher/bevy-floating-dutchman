@@ -27,25 +27,18 @@ pub fn follow(
     rigid_bodies: Res<RigidBodySet>,
 ) {
     for (follow, rb_handle, mut motion) in followers.iter_mut() {
-      if let Some(follower_rb) = rigid_bodies.get(rb_handle.handle()) {
+        if let Some(follower_rb) = rigid_bodies.get(rb_handle.handle()) {
+            if let Ok(rb_comp) = rb_query.get_component::<RigidBodyHandleComponent>(follow.entity) {
+                if let Some(followed_rb) = rigid_bodies.get(rb_comp.handle()) {
+                    let follower_pos = follower_rb.position().translation;
+                    let followed_pos = followed_rb.position().translation;
 
-        if let Ok(rb_comp) = rb_query.get_component::<RigidBodyHandleComponent>(follow.entity) {
-          if let Some(followed_rb)  = rigid_bodies.get(rb_comp.handle()) {
-            let follower_pos = follower_rb.position().translation;
-            let followed_pos = followed_rb.position().translation;
-
-
-            let x = followed_pos.x - follower_pos.x;
-            let y = followed_pos.y - follower_pos.y;
-            let dir = Vec2::new(x,y).normalize();
-            // motion.acceleration = dir;
-          }
-
-
+                    let x = followed_pos.x - follower_pos.x;
+                    let y = followed_pos.y - follower_pos.y;
+                    motion.direction = Vec2::new(x, y).normalize();
+                    // motion.acceleration = dir;
+                }
+            }
         }
-       
-
-      }
-   
     }
 }

@@ -22,8 +22,8 @@ pub fn spawn_follow_enemy(
     const ENEMY_SCALE: f32 = 2.5;
     const ENEMY_WIDTH: f32 = 12.0 * ENEMY_SCALE;
     const ENEMY_HEIGHT: f32 = 20.0 * ENEMY_SCALE;
-    const ENEMY_SPEED: f32 = 2.0;
-    const ENEMY_ACCEL: f32 = 0.1;
+    const ENEMY_SPEED: f32 = 80.0;
+    const ENEMT_ACCEL: f32 = 20.0;
     const ENEMY_ROTATE_SPEED: f32 = 3.0;
 
     let texture_handle = asset_server.load("sprites/green_fighter.png");
@@ -41,10 +41,15 @@ pub fn spawn_follow_enemy(
             material: materials.add(texture_handle.into()),
             ..Default::default()
         })
-        .insert(Motion::new(ENEMY_SPEED, ENEMY_ACCEL))
+        .insert(Motion::new(ENEMY_SPEED, ENEMT_ACCEL))
         .insert(tracker)
         .insert(Follow::new(game.player.unwrap()))
-        .insert(RigidBodyBuilder::new_dynamic().translation(20.0, 20.0))
+        .insert(
+            RigidBodyBuilder::new_dynamic()
+                .linear_damping(1.0)
+                .angular_damping(6.0)
+                .translation(20.0, 20.0),
+        )
         .insert(ColliderBuilder::cuboid(
             ENEMY_WIDTH / rapier_config.scale / 2.0,
             ENEMY_HEIGHT / rapier_config.scale / 2.0,

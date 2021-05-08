@@ -6,8 +6,8 @@ use bevy_rapier2d::{
 };
 
 use crate::{
-    components::{Player, Track},
     components::Motion,
+    components::{Health, Player, Track},
     resources::Game,
 };
 
@@ -22,8 +22,8 @@ pub fn spawn_player(
     const PLAYER_SPRITE_DIM: f32 = 549.;
     const PLAYER_WIDTH: f32 = PLAYER_SPRITE_DIM - 350.;
     const PLAYER_HEIGHT: f32 = PLAYER_SPRITE_DIM - 80.;
-    const PLAYER_SPEED: f32 = 50.0*20.0;
-    const PLAYER_ACCEL: f32 = 30.0;
+    const PLAYER_SPEED: f32 = 400.0;
+    const PLAYER_ACCEL: f32 = 50.0;
     const PLAYER_ROTATE_SPEED: f32 = 60.0;
     const PLAYER_SPRITE_OFFSET: f32 = std::f32::consts::PI / 2.0;
 
@@ -44,9 +44,14 @@ pub fn spawn_player(
                 ..Default::default()
             })
             .insert(Player::new())
+            .insert(Health::new(4.0))
             .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
             .insert(Track::new(PLAYER_ROTATE_SPEED, PLAYER_SPRITE_OFFSET))
-            .insert(RigidBodyBuilder::new_dynamic())
+            .insert(
+                RigidBodyBuilder::new_dynamic()
+                    .linear_damping(1.0)
+                    .angular_damping(6.0),
+            )
             .insert(ColliderBuilder::cuboid(
                 collider_size_x / 2.0,
                 collider_size_y / 2.0,
