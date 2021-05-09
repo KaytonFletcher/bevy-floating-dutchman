@@ -32,6 +32,7 @@ fn main() {
                 .label("enemy")
                 .after("player"),
         )
+        .add_startup_system(ui::spawn_player_ui.system().after("player"))
         .add_system(systems::player_input.system().label("player_input"))
         .add_system(systems::follow.system().label("follow"))
         .add_system(
@@ -50,7 +51,8 @@ fn main() {
         )
         .add_system(systems::update_tracking.system().after("movement"))
         .add_system(systems::position_system.system().after("movement"))
-        .add_system(systems::collision.system())
+        .add_system(systems::collision.system().label("collision"))
+        .add_system(ui::update_player_ui.system().after("collision"))
         .insert_resource(ReportExecutionOrderAmbiguities)
         // .add_plugin(RapierRenderPlugin)
         .run();

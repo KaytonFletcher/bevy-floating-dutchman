@@ -44,7 +44,7 @@ pub fn spawn_follow_enemy(
         .insert(Motion::new(ENEMY_SPEED, ENEMT_ACCEL))
         .insert(tracker)
         .insert(Follow::new(game.player.unwrap()))
-        .insert(Damage { amount: 1.0 } )
+        .insert(Damage { amount: 0.5 } )
         .insert(
             RigidBodyBuilder::new_dynamic()
                 .linear_damping(1.0)

@@ -12,7 +12,7 @@ use crate::components::{Damage, Health, Player};
 pub fn collision(
     mut commands: Commands,
     mut player_query: Query<&mut Health, With<Player>>,
-    mut damage_query: Query<&Damage, Without<Player>>,
+    damage_query: Query<&Damage, Without<Player>>,
     events: Res<EventQueue>,
     rigid_bodies: ResMut<RigidBodySet>,
     colliders: ResMut<ColliderSet>,
