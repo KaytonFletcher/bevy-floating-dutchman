@@ -5,11 +5,7 @@ use bevy_rapier2d::{
     rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder},
 };
 
-use crate::{
-    components::Motion,
-    components::{Health, Player, Track},
-    resources::Game,
-};
+use crate::{components::Motion, components::{Damage, Health, Player, Track}, resources::Game};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -49,6 +45,7 @@ pub fn spawn_player(
     player_builder
         .insert(Player::new())
         .insert(Health::new(4.0))
+        .insert(Damage { amount: 1.0 } )
         .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
         .insert(Track::new(PLAYER_ROTATE_ACCEL, PLAYER_SPRITE_OFFSET))
         .insert(

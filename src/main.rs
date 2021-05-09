@@ -6,6 +6,7 @@ mod components;
 mod entities;
 mod resources;
 mod systems;
+mod ui;
 
 fn main() {
     App::build()

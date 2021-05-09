@@ -1,4 +1,4 @@
-use bevy::prelude::{Entity, Vec2};
+use bevy::prelude::Entity;
 
 pub struct Follow {
     pub entity: Entity,

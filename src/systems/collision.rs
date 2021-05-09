@@ -7,11 +7,12 @@ use bevy_rapier2d::{
     },
 };
 
-use crate::components::{Health, Player};
+use crate::components::{Damage, Health, Player};
 
 pub fn collision(
     mut commands: Commands,
     mut player_query: Query<&mut Health, With<Player>>,
+    mut damage_query: Query<&Damage, Without<Player>>,
     events: Res<EventQueue>,
     rigid_bodies: ResMut<RigidBodySet>,
     colliders: ResMut<ColliderSet>,
@@ -30,11 +31,18 @@ pub fn collision(
 
                 // println!("CONTACT STARTED");
 
-                if player_query.get_component::<Health>(e1).is_ok() {
+                if let Ok(mut health) = player_query.get_component_mut::<Health>(e1) {
+                    if let Ok(damage) = damage_query.get_component::<Damage>(e2) {
+                        health.damage(damage.amount);
+                    }
                     // println!("DELETE");
 
                     commands.entity(e2).despawn();
-                } else if player_query.get_component::<Health>(e2).is_ok() {
+                } else if let Ok(mut health) = player_query.get_component_mut::<Health>(e2) {
+                    if let Ok(damage) = damage_query.get_component::<Damage>(e1) {
+                        health.damage(damage.amount);
+                    }
+
                     commands.entity(e1).despawn();
                 }
             }
