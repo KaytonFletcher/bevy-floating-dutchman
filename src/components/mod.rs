@@ -3,6 +3,7 @@ mod health;
 mod motion;
 mod player;
 mod track;
+mod shoot;
 
 pub use self::follow::Follow;
 pub use self::health::Health;
