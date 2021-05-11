@@ -5,7 +5,11 @@ use bevy_rapier2d::{
     rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder},
 };
 
-use crate::{components::Motion, components::{Damage, Health, Player, Track}, resources::Game};
+use crate::{
+    components::Motion,
+    components::{Damage, Health, Player, ProjectileBundle, Track, Weapon},
+    resources::Game,
+};
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -24,6 +28,7 @@ pub fn spawn_player(
     const PLAYER_SPRITE_OFFSET: f32 = std::f32::consts::PI / 2.0;
 
     let texture_handle = asset_server.load("sprites/pirate_ship.png");
+    let bullet_texture = asset_server.load("sprites/cannonball.png");
 
     let collider_size_x = PLAYER_WIDTH * PLAYER_SCALE / rapier_config.scale;
     let collider_size_y = PLAYER_HEIGHT * PLAYER_SCALE / rapier_config.scale;
@@ -45,7 +50,7 @@ pub fn spawn_player(
     player_builder
         .insert(Player::new())
         .insert(Health::new(4.0))
-        .insert(Damage { amount: 1.0 } )
+        .insert(Damage { amount: 1.0 })
         .insert(Motion::new(PLAYER_SPEED, PLAYER_ACCEL))
         .insert(Track::new(PLAYER_ROTATE_ACCEL, PLAYER_SPRITE_OFFSET))
         .insert(
@@ -57,5 +62,12 @@ pub fn spawn_player(
         .insert(ColliderBuilder::cuboid(
             collider_size_x / 2.0,
             collider_size_y / 2.0,
-        ));
+        ))
+        .with_children(|parent| {
+            parent.spawn().insert(Weapon {
+                fire_rate: Timer::from_seconds(0.2, true),
+                spread: 0.1,
+                projectile: ProjectileBundle::new(materials.add(bullet_texture.into())),
+            });
+        });
 }

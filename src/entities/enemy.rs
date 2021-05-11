@@ -7,7 +7,10 @@ use bevy_rapier2d::{
     rapier::{dynamics::RigidBodyBuilder, geometry::ColliderBuilder},
 };
 
-use crate::{components::{Damage, Follow, Motion, Track}, resources::Game};
+use crate::{
+    components::{Damage, Follow, Motion, Track},
+    resources::Game,
+};
 
 pub fn spawn_follow_enemy(
     mut commands: Commands,
@@ -44,7 +47,7 @@ pub fn spawn_follow_enemy(
         .insert(Motion::new(ENEMY_SPEED, ENEMT_ACCEL))
         .insert(tracker)
         .insert(Follow::new(game.player.unwrap()))
-        .insert(Damage { amount: 0.5 } )
+        .insert(Damage { amount: 0.5 })
         .insert(
             RigidBodyBuilder::new_dynamic()
                 .linear_damping(1.0)

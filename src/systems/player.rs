@@ -1,18 +1,16 @@
-use crate::{
-    components::Motion,
-    components::{Player, Track},
-    systems::MainCamera,
-};
+use crate::{components::Motion, components::{Player, Projectile, Track, Weapon}, systems::MainCamera};
 
 use bevy::prelude::*;
 
 use bevy_rapier2d::physics::RapierConfiguration;
 
 pub fn player_input(
-    mut player_query: Query<(&mut Track, &mut Motion), With<Player>>,
+    mut player_query: Query<(&mut Track, &mut Motion, &Children), With<Player>>,
     mut evr_cursor: EventReader<CursorMoved>,
+    weapon_query: Query<(&Weapon, &Projectile)>,
     camera_query: Query<&Transform, With<MainCamera>>,
     keyboard_input: Res<Input<KeyCode>>,
+    buttons: Res<Input<MouseButton>>,
     // need to get window dimensions for mouse position
     windows: Res<Windows>,
     rapier_parameters: Res<RapierConfiguration>,
@@ -20,7 +18,7 @@ pub fn player_input(
     // assumes only one camera has been given the MainCamera component
     let camera_transform = camera_query.iter().next().unwrap().clone();
 
-    for (mut track_mouse, mut motion) in player_query.iter_mut() {
+    for (mut track_mouse, mut motion, children) in player_query.iter_mut() {
         motion.direction.x = 0.0;
         motion.direction.y = 0.0;
 
@@ -56,5 +54,14 @@ pub fn player_input(
             // update the position the player is tracking (rotating towards mouse pos)
             track_mouse.pos = (mouse_pos / rapier_parameters.scale).into();
         }
+
+        if buttons.just_pressed(MouseButton::Left) {
+
+            // weapon_query.get(children.)
+            // Left button was pressed
+            // if ship.cannon_timer.finished() {
+
+        }
+
     }
 }

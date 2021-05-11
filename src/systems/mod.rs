@@ -1,8 +1,8 @@
 mod boundary;
+mod collision;
 mod movement;
 mod player;
 mod setup;
-mod collision;
 
 pub use self::boundary::position_system;
 pub use self::movement::follow;
