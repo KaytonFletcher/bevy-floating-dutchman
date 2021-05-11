@@ -1,4 +1,6 @@
-use bevy::{asset::HandleId, prelude::*};
+use bevy::prelude::*;
+
+use super::Motion;
 
 pub struct Weapon {
     pub fire_rate: Timer,
@@ -6,24 +8,27 @@ pub struct Weapon {
     pub projectile: ProjectileBundle,
 }
 
+#[derive(Clone)]
 pub struct Projectile {
     pub time_to_live: Timer,
 }
 
-#[derive(Bundle)]
+#[derive(Bundle, Clone)]
 pub struct ProjectileBundle {
-    projectile: Projectile,
+    pub projectile: Projectile,
+    pub motion: Motion,
 
     #[bundle]
-    sprite: SpriteBundle,
+    pub sprite: SpriteBundle,
 }
 
 impl ProjectileBundle {
     pub fn new(texture: Handle<ColorMaterial>) -> Self {
         Self {
             projectile: Projectile {
-                time_to_live: Timer::from_seconds(0.2, true),
+                time_to_live: Timer::from_seconds(3.0, true),
             },
+            motion: Motion::new(800.0, 800.0),
             sprite: SpriteBundle {
                 material: texture,
                 ..Default::default()

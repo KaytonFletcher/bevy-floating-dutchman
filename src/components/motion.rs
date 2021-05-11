@@ -1,4 +1,6 @@
 use bevy::prelude::Vec2;
+
+#[derive(Clone)]
 pub struct Motion {
     pub direction: Vec2,
     pub acceleration: f32,

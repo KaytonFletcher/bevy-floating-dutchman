@@ -63,11 +63,9 @@ pub fn spawn_player(
             collider_size_x / 2.0,
             collider_size_y / 2.0,
         ))
-        .with_children(|parent| {
-            parent.spawn().insert(Weapon {
-                fire_rate: Timer::from_seconds(0.2, true),
-                spread: 0.1,
-                projectile: ProjectileBundle::new(materials.add(bullet_texture.into())),
-            });
+        .insert(Weapon {
+            fire_rate: Timer::from_seconds(0.2, true),
+            spread: 0.1,
+            projectile: ProjectileBundle::new(materials.add(bullet_texture.into())),
         });
 }

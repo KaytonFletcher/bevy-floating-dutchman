@@ -51,6 +51,8 @@ fn main() {
         )
         .add_system(systems::update_tracking.system().after("movement"))
         .add_system(systems::position_system.system().after("movement"))
+        .add_system(systems::weapon_fire_rate.system())
+        .add_system(systems::despawn_projectile.system())
         .add_system(systems::collision.system().label("collision"))
         .add_system(ui::update_player_ui.system().after("collision"))
         .insert_resource(ReportExecutionOrderAmbiguities)
