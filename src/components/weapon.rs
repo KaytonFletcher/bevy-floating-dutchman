@@ -26,9 +26,9 @@ impl ProjectileBundle {
     pub fn new(texture: Handle<ColorMaterial>) -> Self {
         Self {
             projectile: Projectile {
-                time_to_live: Timer::from_seconds(3.0, true),
+                time_to_live: Timer::from_seconds(2.0, false),
             },
-            motion: Motion::new(800.0, 800.0),
+            motion: Motion::new(10000.0, 5000.0),
             sprite: SpriteBundle {
                 material: texture,
                 ..Default::default()

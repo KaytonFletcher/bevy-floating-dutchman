@@ -72,19 +72,20 @@ pub fn player_input(
             track_mouse.pos = (mouse_pos / rapier_parameters.scale).into();
         }
 
-        if buttons.just_pressed(MouseButton::Left) {
+        if buttons.just_pressed(MouseButton::Left) || buttons.pressed(MouseButton::Left)  {
             // Left mouse button was pressed
 
             if weapon.fire_rate.finished() {
                 // hasn't been too quick since last press
 
+                // println!("spawning projectile");
                 let rb = rigid_bodies.get(rb_handle.handle()).unwrap();
                 spawn_projectile(&mut commands, rb, &weapon.projectile);
 
-                // spawn_laser(commands, body, &runstate, audio);
                 weapon.fire_rate.reset();
             }
-            // if ship.cannon_timer.finished() {
         }
+
+       
     }
 }

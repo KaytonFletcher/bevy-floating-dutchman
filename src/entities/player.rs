@@ -64,7 +64,7 @@ pub fn spawn_player(
             collider_size_y / 2.0,
         ))
         .insert(Weapon {
-            fire_rate: Timer::from_seconds(0.2, true),
+            fire_rate: Timer::from_seconds(0.4, false),
             spread: 0.1,
             projectile: ProjectileBundle::new(materials.add(bullet_texture.into())),
         });
