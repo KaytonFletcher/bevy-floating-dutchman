@@ -71,8 +71,8 @@ pub fn player_input(
             // update the position the player is tracking (rotating towards mouse pos)
             track_mouse.pos = (mouse_pos / rapier_parameters.scale).into();
         }
-
-        if buttons.just_pressed(MouseButton::Left) || buttons.pressed(MouseButton::Left)  {
+//  buttons.just_pressed(MouseButton::Left) ||
+        if buttons.pressed(MouseButton::Left)  {
             // Left mouse button was pressed
 
             if weapon.fire_rate.finished() {
@@ -80,7 +80,7 @@ pub fn player_input(
 
                 // println!("spawning projectile");
                 let rb = rigid_bodies.get(rb_handle.handle()).unwrap();
-                spawn_projectile(&mut commands, rb, &weapon.projectile);
+                spawn_projectile(&mut commands, rb, &weapon.projectile, &rapier_parameters);
 
                 weapon.fire_rate.reset();
             }
