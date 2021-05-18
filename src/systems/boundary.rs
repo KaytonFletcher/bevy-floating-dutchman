@@ -8,17 +8,19 @@ use bevy_rapier2d::{
 pub fn position_system(
     mut bodies: ResMut<RigidBodySet>,
     query: Query<&RigidBodyHandleComponent>,
-    rapier_parameters: Res<RapierConfiguration>,
+    windows: Res<Windows>,
 ) {
     for body_handle in &mut query.iter() {
         let body = bodies.get_mut(body_handle.handle()).unwrap();
-        // println!("{:?}", body);
+
         let mut x = body.position().translation.vector.x;
         let mut y = body.position().translation.vector.y;
         let mut updated = false;
+
+        let window = windows.get_primary().unwrap();
         // Wrap around screen edges
-        let half_width = 1000.0 / 2.0 / rapier_parameters.scale;
-        let half_height = 1000.0 / 2.0 / rapier_parameters.scale;
+        let half_width = window.width() / 2.0;
+        let half_height = window.height() / 2.0;
         if x < -half_width && body.linvel().x < 0.0 {
             x = half_width;
             updated = true;

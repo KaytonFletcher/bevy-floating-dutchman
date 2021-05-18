@@ -7,12 +7,12 @@ pub struct Motion {
     pub max_vel: f32,
 }
 
-impl Motion {
-    pub fn new(max_vel: f32, acceleration: f32) -> Motion {
-        Self {
-            direction: Vec2::new(0., 0.),
-            acceleration,
-            max_vel,
+impl Default for Motion {
+    fn default() -> Self {
+        Motion {
+            direction: Vec2::new(0.0, 0.0),
+            acceleration: 200.0,
+            max_vel: 400.0,
         }
     }
 }

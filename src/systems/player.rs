@@ -1,41 +1,30 @@
 use crate::{
     components::Motion,
-    components::{Player, Projectile, Track, Weapon},
+    components::{Player, Track, Weapon},
     entities::spawn_projectile,
+    events::WeaponFired,
     systems::MainCamera,
 };
 
 use bevy::prelude::*;
 
-use bevy_rapier2d::{
-    physics::{RapierConfiguration, RigidBodyHandleComponent},
-    rapier::dynamics::RigidBodySet,
-};
+use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
 pub fn player_input(
     mut commands: Commands,
-    mut player_query: Query<
-        (
-            &mut Track,
-            &mut Motion,
-            &mut Weapon,
-            &RigidBodyHandleComponent,
-        ),
-        With<Player>,
-    >,
+    mut player_query: Query<(&mut Track, &mut Motion, &mut Weapon, Entity), With<Player>>,
     mut evr_cursor: EventReader<CursorMoved>,
-    rigid_bodies: ResMut<RigidBodySet>,
+    mut weapon_fired: EventWriter<WeaponFired>,
     camera_query: Query<&Transform, With<MainCamera>>,
     keyboard_input: Res<Input<KeyCode>>,
     buttons: Res<Input<MouseButton>>,
     // need to get window dimensions for mouse position
     windows: Res<Windows>,
-    rapier_parameters: Res<RapierConfiguration>,
 ) {
     // assumes only one camera has been given the MainCamera component
     let camera_transform = camera_query.iter().next().unwrap().clone();
 
-    for (mut track_mouse, mut motion, mut weapon, rb_handle) in player_query.iter_mut() {
+    for (mut track_mouse, mut motion, mut weapon, entity) in player_query.iter_mut() {
         motion.direction.x = 0.0;
         motion.direction.y = 0.0;
 
@@ -69,23 +58,16 @@ pub fn player_input(
             let mouse_pos = camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
 
             // update the position the player is tracking (rotating towards mouse pos)
-            track_mouse.pos = (mouse_pos / rapier_parameters.scale).into();
+            track_mouse.pos = mouse_pos.into();
         }
-//  buttons.just_pressed(MouseButton::Left) ||
-        if buttons.pressed(MouseButton::Left)  {
+
+        if buttons.pressed(MouseButton::Left) {
             // Left mouse button was pressed
 
             if weapon.fire_rate.finished() {
                 // hasn't been too quick since last press
-
-                // println!("spawning projectile");
-                let rb = rigid_bodies.get(rb_handle.handle()).unwrap();
-                spawn_projectile(&mut commands, rb, &weapon.projectile, &rapier_parameters);
-
-                weapon.fire_rate.reset();
+                weapon_fired.send(WeaponFired { entity });
             }
         }
-
-       
     }
 }

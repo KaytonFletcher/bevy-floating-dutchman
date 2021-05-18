@@ -7,18 +7,16 @@ use bevy_rapier2d::{
     },
 };
 
-use crate::components::{Damage, Health, Player};
+use crate::components::{Damage, Health};
 
 pub fn collision(
     mut commands: Commands,
-    mut player_query: Query<&mut Health, With<Player>>,
-    damage_query: Query<&Damage, Without<Player>>,
+    mut player_query: Query<&mut Health>,
+    damage_query: Query<&Damage>,
     events: Res<EventQueue>,
     rigid_bodies: ResMut<RigidBodySet>,
     colliders: ResMut<ColliderSet>,
-    // handles: Query<&RigidBodyHandleComponent>,
 ) {
-    // let mut contacts = vec![];
     while let Ok(contact_event) = events.contact_events.pop() {
         match contact_event {
             ContactEvent::Started(h1, h2) => {
@@ -29,24 +27,56 @@ pub fn collision(
                 let e1 = Entity::from_bits(b1.user_data as u64);
                 let e2 = Entity::from_bits(b2.user_data as u64);
 
-                // println!("CONTACT STARTED");
-
                 if let Ok(mut health) = player_query.get_component_mut::<Health>(e1) {
                     if let Ok(damage) = damage_query.get_component::<Damage>(e2) {
-                        health.damage(damage.amount);
+                        if health.damage(damage.amount) {
+                            commands.entity(e1).despawn();
+                        }
                     }
-                    // println!("DELETE");
+                }
 
-                    commands.entity(e2).despawn();
-                } else if let Ok(mut health) = player_query.get_component_mut::<Health>(e2) {
+                if let Ok(mut health) = player_query.get_component_mut::<Health>(e2) {
                     if let Ok(damage) = damage_query.get_component::<Damage>(e1) {
-                        health.damage(damage.amount);
+                        if health.damage(damage.amount) {
+                            commands.entity(e2).despawn();
+                        }
                     }
-
-                    commands.entity(e1).despawn();
                 }
             }
             _ => (),
+        }
+    }
+
+    while let Ok(intersect_event) = events.intersection_events.pop() {
+        if intersect_event.intersecting {
+            println!("intersection event");
+
+            let c1 = colliders.get(intersect_event.collider1).unwrap();
+            let c2 = colliders.get(intersect_event.collider2).unwrap();
+            let b1 = rigid_bodies.get(c1.parent()).unwrap();
+            let b2 = rigid_bodies.get(c2.parent()).unwrap();
+            let e1 = Entity::from_bits(b1.user_data as u64);
+            let e2 = Entity::from_bits(b2.user_data as u64);
+
+            if let Ok(mut health) = player_query.get_component_mut::<Health>(e1) {
+                if let Ok(damage) = damage_query.get_component::<Damage>(e2) {
+                    println!("damage");
+
+                    if health.damage(damage.amount) {
+                        commands.entity(e1).despawn();
+                    }
+                }
+            }
+
+            if let Ok(mut health) = player_query.get_component_mut::<Health>(e2) {
+                if let Ok(damage) = damage_query.get_component::<Damage>(e1) {
+                    println!("damage 2");
+
+                    if health.damage(damage.amount) {
+                        commands.entity(e2).despawn();
+                    }
+                }
+            }
         }
     }
 }

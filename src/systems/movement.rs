@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-use bevy_rapier2d::{
-    physics::{RapierConfiguration, RigidBodyHandleComponent},
-    rapier::dynamics::RigidBodySet,
-};
+use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
 use crate::{
     components::Motion,
@@ -14,11 +11,8 @@ use crate::{
 // entity being tracked
 pub fn update_tracking(
     query: Query<(&Track, &RigidBodyHandleComponent)>,
-    rapier_parameters: Res<RapierConfiguration>,
-    time: Res<Time>,
     mut rigid_bodies: ResMut<RigidBodySet>,
 ) {
-    let elapsed = time.delta_seconds();
     for (track, rigid_body) in query.iter() {
         // always true
         if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
@@ -32,11 +26,7 @@ pub fn update_tracking(
 
             let torque = new_angle.sin() * track.rotate_acceleration * rb.mass();
 
-            // applies the scale factor between rapier physics and bevy physics
-            // also applies a time delta to ensure the force is time agnostic
-            let scaled_torque = torque * rapier_parameters.scale * elapsed;
-
-            rb.apply_torque_impulse(scaled_torque, true);
+            rb.apply_torque_impulse(torque, true);
         }
     }
 }
@@ -61,12 +51,9 @@ pub fn tracking(
 // Runs when the Motion component is modified, applying linear force to the entity in the direction
 // specified by the Motion component
 pub fn update_movement(
-    query: Query<(&Motion, &RigidBodyHandleComponent), Changed<Motion>>,
-    rapier_parameters: Res<RapierConfiguration>,
-    time: Res<Time>,
+    query: Query<(&Motion, &RigidBodyHandleComponent)>,
     mut rigid_bodies: ResMut<RigidBodySet>,
 ) {
-    let elapsed = time.delta_seconds();
     for (motion, rigid_body) in query.iter() {
         // Update the velocity on the rigid_body_component,
         // the bevy_rapier plugin will update the Sprite transform.
@@ -74,13 +61,9 @@ pub fn update_movement(
             let force = motion.acceleration * rb.mass();
             let directed_force = motion.direction * force;
 
-            // applies the scale factor between rapier physics and bevy physics
-            // also applies a time delta to ensure the force is time agnostic
-            let scaled_force = directed_force * rapier_parameters.scale * elapsed;
+            rb.apply_force(directed_force.into(), true);
 
-            rb.apply_force(scaled_force.into(), true);
-
-            let scaled_max_velocity = motion.max_vel * rapier_parameters.scale;
+            let scaled_max_velocity = motion.max_vel;
 
             // ensures the velocity of rigid body does not exceed the specified entities max velocity
             // specifically when applying the force above ^^

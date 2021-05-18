@@ -1,7 +1,15 @@
+#[derive(Clone)]
 pub struct Damage {
     pub amount: f32,
 }
 
+impl Default for Damage {
+    fn default() -> Self {
+        Damage { amount: 1.0 }
+    }
+}
+
+#[derive(Clone)]
 pub struct Health {
     pub max_health: f32,
     pub current_health: f32,

@@ -1,5 +1,6 @@
 mod boundary;
 mod collision;
+pub mod debug;
 mod movement;
 mod player;
 mod projectile;
@@ -14,5 +15,6 @@ pub use movement::update_tracking;
 pub use player::player_input;
 pub use projectile::despawn_projectile;
 pub use projectile::weapon_fire_rate;
+pub use projectile::weapon_fired;
 pub use setup::setup;
 pub use setup::MainCamera;

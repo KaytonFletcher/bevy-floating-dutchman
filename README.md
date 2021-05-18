@@ -7,11 +7,6 @@ Here is sample of asset loading in bevy:
 
 https://bevy-cheatbook.github.io/cookbook/assets-ready.html
 
-## Adding a generic weapon and bullet component
-This is what I'm currently working on
-
-Allow component to be added to an entity, uses entities position as starting place and angle of bullets
-
 ## Learn Bevy "States"
 Setup states to transition from Main Menu/Loading/Game/Game Over
 
