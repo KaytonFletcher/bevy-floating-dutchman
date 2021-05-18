@@ -44,6 +44,7 @@ pub fn spawn_player(
             },
             ..Default::default()
         },
+        pos_offset: 70.0,
         ..Default::default()
     };
 

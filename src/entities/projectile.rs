@@ -6,19 +6,20 @@ use bevy_rapier2d::rapier::{
     geometry::{ColliderBuilder, InteractionGroups},
 };
 
-use crate::components::ProjectileBundle;
+use crate::components::Weapon;
 
 pub fn spawn_projectile(
     commands: &mut Commands,
     spawn_body: &RigidBody,
-    projectile_bundle: &ProjectileBundle,
+    weapon: &Weapon,
+    ang_offset: f32,
 ) {
-    let mut new_pb = (*projectile_bundle).clone();
+    let mut new_pb = weapon.projectile.clone();
 
-    let rot = spawn_body.position().rotation.angle() - (PI / 2.0);
+    let rot = spawn_body.position().rotation.angle() - ang_offset;
     new_pb.motion.direction = Vec2::new(rot.cos(), rot.sin());
 
-    let bruh = new_pb.motion.direction * 70.0;
+    let bruh = new_pb.motion.direction * weapon.pos_offset;
 
     let start_pos: Vec2 = Vec2::new(
         spawn_body.position().translation.x + bruh.x,

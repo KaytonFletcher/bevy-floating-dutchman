@@ -1,18 +1,14 @@
 use crate::{
     components::Motion,
     components::{Player, Track, Weapon},
-    entities::spawn_projectile,
     events::WeaponFired,
     systems::MainCamera,
 };
 
 use bevy::prelude::*;
 
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
-
 pub fn player_input(
-    mut commands: Commands,
-    mut player_query: Query<(&mut Track, &mut Motion, &mut Weapon, Entity), With<Player>>,
+    mut player_query: Query<(&mut Track, &mut Motion, &Weapon, Entity), With<Player>>,
     mut evr_cursor: EventReader<CursorMoved>,
     mut weapon_fired: EventWriter<WeaponFired>,
     camera_query: Query<&Transform, With<MainCamera>>,

@@ -49,8 +49,21 @@ fn main() {
                 .label("enemy")
                 .after("player"),
         )
+        .add_startup_system(entities::spawn_shoot_enemy.system().after("enemy"))
         .add_startup_system(ui::spawn_player_ui.system().after("player"))
-        .add_system(systems::player_input.system().label("player_input"))
+        .add_system(systems::weapon_fire_rate.system().label("weapon_tick"))
+        .add_system(
+            systems::player_input
+                .system()
+                .label("player_input")
+                .after("weapon_tick"),
+        )
+        .add_system(
+            systems::constant_weapon_fire
+                .system()
+                .label("constant_weapon_fire")
+                .after("weapon_tick"),
+        )
         .add_system(systems::follow.system().label("follow"))
         .add_system(
             systems::tracking
@@ -59,18 +72,22 @@ fn main() {
                 .after("player_input")
                 .after("follow"),
         )
-        .add_system(systems::weapon_fire_rate.system().before("player_input"))
         .add_system(systems::position_system.system())
         .add_system(systems::despawn_projectile.system())
         .add_system(ui::update_player_ui.system())
-        .add_system(systems::weapon_fired.system().after("player_input"))
+        .add_system(
+            systems::weapon_fired
+                .system()
+                .after("player_input")
+                .after("constant_weapon_fire"),
+        )
         .add_system_to_stage(CustomStages::Physics, systems::update_movement.system())
         .add_system_to_stage(CustomStages::Physics, systems::update_tracking.system())
         .add_system_to_stage(CustomStages::Physics, systems::collision.system())
-        .add_system_to_stage(
-            CustomStages::Debug,
-            systems::debug::debug_projectiles.system(),
-        )
+        // .add_system_to_stage(
+        //     CustomStages::Debug,
+        //     systems::debug::debug_projectiles.system(),
+        // )
         // .insert_resource(ReportExecutionOrderAmbiguities)
         // .add_plugin(RapierRenderPlugin)
         .run();

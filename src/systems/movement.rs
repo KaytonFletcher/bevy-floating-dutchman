@@ -63,12 +63,10 @@ pub fn update_movement(
 
             rb.apply_force(directed_force.into(), true);
 
-            let scaled_max_velocity = motion.max_vel;
-
             // ensures the velocity of rigid body does not exceed the specified entities max velocity
             // specifically when applying the force above ^^
             // (specified on the Motion component)
-            rb.set_linvel(rb.linvel().cap_magnitude(scaled_max_velocity), false);
+            rb.set_linvel(rb.linvel().cap_magnitude(motion.max_vel), false);
         }
     }
 }
@@ -90,7 +88,17 @@ pub fn follow(
                     // of the entity (Rigid body component) being followed
                     let x = being_followed_pos.x - follower_pos.x;
                     let y = being_followed_pos.y - follower_pos.y;
-                    motion.direction = Vec2::new(x, y).normalize();
+
+                    let new_follow_pos = Vec2::new(x, y);
+
+                    let mut mult = 1.0;
+
+                    if let Some(space) = follow.space {
+                        if new_follow_pos.length() < space {
+                            mult = -1.0;
+                        }
+                    }
+                    motion.direction = Vec2::new(x, y).normalize() * mult;
                 }
             }
         }
