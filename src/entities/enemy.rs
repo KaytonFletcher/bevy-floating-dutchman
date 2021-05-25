@@ -8,15 +8,15 @@ use bevy_rapier2d::rapier::{
 };
 
 use crate::{
-    components::{Damage, Follow, Health, Motion, ProjectileBundle, Track, Weapon},
-    resources::Game,
+    components::{Damage, Follow, Health, Motion, Player, ProjectileBundle, Track, Weapon},
+    resources::SpriteAssets,
 };
 
 pub fn spawn_follow_enemy(
     mut commands: Commands,
+    player_query: Query<Entity, With<Player>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    game: Res<Game>,
-    asset_server: Res<AssetServer>,
+    sprites: Res<SpriteAssets>,
 ) {
     const ENEMY_SCALE: f32 = 2.5;
     const ENEMY_WIDTH: f32 = 12.0 * ENEMY_SCALE;
@@ -25,12 +25,11 @@ pub fn spawn_follow_enemy(
     const ENEMT_ACCEL: f32 = 100.0;
     const ENEMY_ROTATE_ACCEL: f32 = 300.0;
 
-    let texture_handle = asset_server.load("sprites/green_fighter.png");
-
-    println!("spawn enemy");
+    // let player_id = player_query.single().unwrap();
+    println!("BRUHHHH");
 
     let mut tracker = Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0);
-    tracker.with_entity(game.player.unwrap());
+    // tracker.with_entity(player_id);
 
     let mut enemy_builder = commands.spawn();
 
@@ -44,7 +43,7 @@ pub fn spawn_follow_enemy(
         })
         .insert(tracker)
         .insert(Health::new(4.0))
-        .insert(Follow::new(game.player.unwrap()))
+        // .insert(Follow::new(player_id))
         .insert(Damage { amount: 0.5 })
         .insert_bundle(SpriteBundle {
             transform: Transform {
@@ -52,7 +51,7 @@ pub fn spawn_follow_enemy(
                 scale: Vec3::new(ENEMY_SCALE, ENEMY_SCALE, 1.0),
                 ..Default::default()
             },
-            material: materials.add(texture_handle.into()),
+            material: materials.add(sprites.follow_enemy.clone().into()),
             ..Default::default()
         })
         .insert(
@@ -66,13 +65,15 @@ pub fn spawn_follow_enemy(
             ColliderBuilder::cuboid(ENEMY_WIDTH / 2.0, ENEMY_HEIGHT / 2.0)
                 .collision_groups(InteractionGroups::new(0x00001, 0x00110)),
         );
+        println!("BRUHHHH2");
+
 }
 
 pub fn spawn_shoot_enemy(
     mut commands: Commands,
+    player_query: Query<Entity, With<Player>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    game: Res<Game>,
-    asset_server: Res<AssetServer>,
+    sprites: Res<SpriteAssets>,
 ) {
     const ENEMY_SCALE: f32 = 2.5;
     const ENEMY_WIDTH: f32 = 32.0 * ENEMY_SCALE;
@@ -81,18 +82,17 @@ pub fn spawn_shoot_enemy(
     const ENEMT_ACCEL: f32 = 100.0;
     const ENEMY_ROTATE_ACCEL: f32 = 300.0;
 
-    let texture_handle = asset_server.load("sprites/red_fighter.png");
-    let bullet_sprite = asset_server.load("sprites/laser_shot_1.png");
+    let player_id = player_query.single().unwrap();
 
     println!("spawn enemy");
 
     let mut tracker = Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0);
-    tracker.with_entity(game.player.unwrap());
+    tracker.with_entity(player_id);
 
     let enemy_weapon = Weapon {
         projectile: ProjectileBundle {
             sprite: SpriteBundle {
-                material: materials.add(bullet_sprite.into()),
+                material: materials.add(sprites.enemy_bullet.clone().into()),
                 ..Default::default()
             },
             motion: Motion {
@@ -120,7 +120,7 @@ pub fn spawn_shoot_enemy(
         .insert(tracker)
         .insert(Health::new(4.0))
         .insert(Follow {
-            entity: game.player.unwrap(),
+            entity: player_id,
             space: Some(300.0),
         })
         .insert(Damage { amount: 0.5 })
@@ -130,7 +130,7 @@ pub fn spawn_shoot_enemy(
                 scale: Vec3::new(ENEMY_SCALE, ENEMY_SCALE, 1.0),
                 ..Default::default()
             },
-            material: materials.add(texture_handle.into()),
+            material: materials.add(sprites.shoot_enemy.clone().into()),
             ..Default::default()
         })
         .insert(enemy_weapon)

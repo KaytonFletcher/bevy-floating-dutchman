@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use bevy::prelude::*;
 use bevy_rapier2d::rapier::{
     dynamics::{MassProperties, RigidBody, RigidBodyBuilder},

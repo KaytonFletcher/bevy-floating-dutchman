@@ -263,6 +263,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_asset_loader"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5bbdb99c9cb63c00b4db0369b535808873932eb25a1257a564cebb739ab2999f"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader_derive",
+]
+
+[[package]]
+name = "bevy_asset_loader_derive"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e16ecfaaaa4255d5995f88fc9884bf4fac56c9e9c23aaf06bf04acf4fe96c56c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bevy_audio"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3208,6 +3229,7 @@ name = "the-floating-dutchman"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_asset_loader",
  "bevy_rapier2d",
  "nalgebra",
 ]

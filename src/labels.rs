@@ -4,3 +4,11 @@ pub enum CustomStages {
     Physics,
     Debug,
 }
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+pub enum GameState {
+  AssetLoading,
+  InitialSpawn,
+  Playing,
+}
+

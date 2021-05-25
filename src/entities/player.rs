@@ -8,17 +8,14 @@ use bevy_rapier2d::rapier::{
 use crate::{
     components::Motion,
     components::{Damage, Health, Player, ProjectileBundle, Track, Weapon},
-    resources::Game,
+    resources::SpriteAssets,
 };
 
 pub fn spawn_player(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut game: ResMut<Game>,
-    asset_server: Res<AssetServer>,
+    sprites: Res<SpriteAssets>,
 ) {
-    println!("spawn player");
-
     const SCALE: f32 = 0.33;
     const SPRITE_DIM: f32 = 549.;
     const WIDTH: f32 = (SPRITE_DIM - 350.) * SCALE;
@@ -28,13 +25,10 @@ pub fn spawn_player(
     const ROTATE_ACCEL: f32 = 400.0;
     const SPRITE_OFFSET: f32 = std::f32::consts::PI / 2.0;
 
-    let player_sprite = asset_server.load("sprites/pirate_ship.png");
-    let bullet_sprite = asset_server.load("sprites/cannonball.png");
-
     let player_weapon = Weapon {
         projectile: ProjectileBundle {
             sprite: SpriteBundle {
-                material: materials.add(bullet_sprite.into()),
+                material: materials.add(sprites.cannonball.clone().into()),
                 ..Default::default()
             },
             motion: Motion {
@@ -47,12 +41,15 @@ pub fn spawn_player(
         pos_offset: 70.0,
         ..Default::default()
     };
+    commands.spawn_bundle(SpriteBundle {
+        material: materials.add(sprites.cannonball.clone().into()),
+        transform: Transform::from_xyz(-300.0, 0.0, 1.0),
+        ..Default::default()
+    });
 
     let mut player_builder = commands.spawn();
 
     let player_entity = player_builder.id();
-
-    game.player = Some(player_entity);
 
     player_builder
         .insert_bundle(SpriteBundle {
@@ -61,7 +58,7 @@ pub fn spawn_player(
                 scale: Vec3::new(SCALE, SCALE, 1.),
                 ..Default::default()
             },
-            material: materials.add(player_sprite.into()),
+            material: materials.add(sprites.player.clone().into()),
             ..Default::default()
         })
         .insert(Player {})

@@ -20,7 +20,7 @@ pub fn player_input(
     // assumes only one camera has been given the MainCamera component
     let camera_transform = camera_query.iter().next().unwrap().clone();
 
-    for (mut track_mouse, mut motion, mut weapon, entity) in player_query.iter_mut() {
+    for (mut track_mouse, mut motion, weapon, entity) in player_query.iter_mut() {
         motion.direction.x = 0.0;
         motion.direction.y = 0.0;
 

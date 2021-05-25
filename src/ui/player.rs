@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::components::{Health, Player};
+use crate::{
+    components::{Health, Player},
+    labels::GameState,
+};
 
 pub struct Heart {
     id: f32,
@@ -10,6 +13,7 @@ pub struct Heart {
 pub fn spawn_player_ui(
     mut commands: Commands,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    mut app_state: ResMut<State<GameState>>,
     asset_server: Res<AssetServer>,
 ) {
     let heart_outline_handle = materials.add(asset_server.load("sprites/heart_outline.png").into());
@@ -84,6 +88,7 @@ pub fn spawn_player_ui(
                     });
             }
         });
+    app_state.set(GameState::Playing).unwrap();
 }
 
 pub fn update_player_ui(

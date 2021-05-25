@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-use bevy_rapier2d::{
-    physics::{RapierConfiguration, RigidBodyHandleComponent},
-    rapier::dynamics::RigidBodySet,
-};
+use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
 
 pub fn position_system(
     mut bodies: ResMut<RigidBodySet>,
