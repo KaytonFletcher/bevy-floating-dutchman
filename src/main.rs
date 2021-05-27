@@ -40,7 +40,7 @@ fn main() {
         SystemStage::single_threaded(),
     )
     .add_state(GameState::AssetLoading)
-    // .add_state_to_stage(CustomStages::Physics, GameState::AssetLoading)
+    .add_state_to_stage(CustomStages::Physics, GameState::AssetLoading)
     // .add_stage_after(
     //     CustomStages::Physics,
     //     CustomStages::Debug,
@@ -61,7 +61,7 @@ fn main() {
     .add_system_set(
         SystemSet::on_enter(GameState::Playing)
             
-            .with_system(entities::spawn_shoot_enemy.system()),
+            // .with_system(entities::spawn_shoot_enemy.system()),
     )
     .add_system_set(
         SystemSet::on_update(GameState::Playing)
@@ -70,7 +70,7 @@ fn main() {
                 systems::player_input
                     .system()
                     .label("player_input")
-                    .after("weapon_tick"),
+                    // .after("weapon_tick"),
             )
             .with_system(
                 systems::constant_weapon_fire
@@ -96,13 +96,13 @@ fn main() {
                     .after("constant_weapon_fire"),
             ),
     )
-    // .add_system_set_to_stage(
-    //     CustomStages::Physics,
-    //     SystemSet::on_update(GameState::Playing)
-    //         .with_system(systems::update_movement.system())
-    //         .with_system(systems::update_tracking.system())
-    //         .with_system(systems::collision.system()),
-    // )
+    .add_system_set_to_stage(
+        CustomStages::Physics,
+        SystemSet::on_update(GameState::Playing)
+            .with_system(systems::update_movement.system())
+            .with_system(systems::update_tracking.system())
+            .with_system(systems::collision.system()),
+    )
     .run();
     // .add_system_to_stage(
     //     CustomStages::Debug,
