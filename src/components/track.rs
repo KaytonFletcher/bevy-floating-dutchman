@@ -1,5 +1,6 @@
-use bevy::prelude::{Entity, Vec2};
+use bevy::prelude::{Entity, Vec2, Component};
 
+#[derive(Component)]
 pub struct Track {
     pub pos: Vec2,
     pub rotate_acceleration: f32,

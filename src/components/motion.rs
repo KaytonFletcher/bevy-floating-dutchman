@@ -1,8 +1,9 @@
-use bevy::prelude::Vec2;
+use bevy::prelude::{Component, Vec2, Quat};
 
-#[derive(Clone)]
+#[derive(Clone, Component)]
 pub struct Motion {
-    pub direction: Vec2,
+    pub direction: Quat,
+    pub is_moving: bool,
     pub acceleration: f32,
     pub max_vel: f32,
 }
@@ -10,9 +11,10 @@ pub struct Motion {
 impl Default for Motion {
     fn default() -> Self {
         Motion {
-            direction: Vec2::new(0.0, 0.0),
+            direction: Quat::IDENTITY,
+            is_moving: true,
             acceleration: 200.0,
-            max_vel: 400.0,
+            max_vel: 20.0,
         }
     }
 }

@@ -1,10 +1,10 @@
-use bevy::prelude::{Commands, Entity, EventReader, EventWriter, Query, Res, Time, Without};
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
-
 use crate::{
     components::{Player, Projectile, Track, Weapon},
     entities::spawn_projectile,
     events::WeaponFired,
+};
+use bevy::prelude::{
+    Commands, Entity, EventReader, EventWriter, Query, Res, Time, Transform, Without,
 };
 
 pub fn weapon_fire_rate(mut weapon_query: Query<&mut Weapon>, time: Res<Time>) {
@@ -27,14 +27,12 @@ pub fn constant_weapon_fire(
 
 pub fn weapon_fired(
     mut commands: Commands,
-    mut query: Query<(&mut Weapon, &Track, &RigidBodyHandleComponent)>,
+    mut query: Query<(&mut Weapon, &Track, &Transform)>,
     mut weapons_fired: EventReader<WeaponFired>,
-    rigid_bodies: Res<RigidBodySet>,
 ) {
     for event in weapons_fired.iter() {
-        if let Ok((mut weapon, track, rb_handle)) = query.get_mut(event.entity) {
-            let rb = rigid_bodies.get(rb_handle.handle()).unwrap();
-            spawn_projectile(&mut commands, rb, &weapon, track.get_offset());
+        if let Ok((mut weapon, track, transform)) = query.get_mut(event.entity) {
+            spawn_projectile(&mut commands, &transform, &weapon, track.get_offset());
             weapon.fire_rate.reset();
         }
     }

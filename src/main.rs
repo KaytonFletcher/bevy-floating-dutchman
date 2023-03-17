@@ -1,113 +1,77 @@
-use bevy::{
-    ecs::schedule::ReportExecutionOrderAmbiguities, prelude::*, render::render_graph::Stages,
+use bevy::{prelude::*, window::WindowResolution};
+
+use bevy_rapier2d::{
+    plugin::RapierPhysicsPlugin, prelude::NoUserData, render::RapierDebugRenderPlugin,
 };
 
-use bevy_rapier2d::physics::RapierPhysicsPlugin;
-
-use bevy_asset_loader::AssetLoader;
-
 use events::WeaponFired;
-use labels::{CustomStages, GameState};
-use resources::SpriteAssets;
+use labels::{CustomSets, GameState};
+use plugins::AssetLoadingPlugin;
 
 mod components;
 mod entities;
 mod events;
 mod labels;
+mod plugins;
 mod resources;
 mod systems;
 mod ui;
 
 fn main() {
-    let mut app = App::build();
+    let mut app = App::new();
 
-    AssetLoader::new(GameState::AssetLoading, GameState::InitialSpawn)
-        .with_collection::<SpriteAssets>()
-        .build(&mut app);
-
-    app.insert_resource(WindowDescriptor {
-        title: "The Floating Dutchman".to_string(),
-        width: 1920.0,
-        height: 1080.0,
-        ..Default::default()
-    })
+    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+        primary_window: Option::Some(Window {
+            title: "The floating dutchman".to_owned(),
+            resolution: WindowResolution::new(1920.0, 1080.0),
+            ..default()
+        }),
+        ..default()
+    }))
+    .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+    .add_plugin(RapierDebugRenderPlugin::default())
+    .add_state::<GameState>()
+    .add_plugin(AssetLoadingPlugin)
     .add_event::<WeaponFired>()
-    .add_plugin(RapierPhysicsPlugin)
-    .add_plugins(DefaultPlugins)
-    .add_stage_after(
-        CoreStage::Update,
-        CustomStages::Physics,
-        SystemStage::single_threaded(),
+    // one-time systems for setting up the world space
+    // may be able to add these to startup schedule instead
+    .add_systems(
+        (systems::setup, entities::spawn_player, ui::spawn_player_ui)
+            .chain()
+            .in_schedule(OnEnter(GameState::SpawnPlayer)),
     )
-    .add_state(GameState::AssetLoading)
-    .add_state_to_stage(CustomStages::Physics, GameState::AssetLoading)
-    // .add_stage_after(
-    //     CustomStages::Physics,
-    //     CustomStages::Debug,
-    //     SystemStage::single_threaded(),
-    // )
-    .add_system_set(
-        SystemSet::on_enter(GameState::InitialSpawn)
-            .with_system(systems::setup.system().label("setup"))
-            .with_system(
-                entities::spawn_player
-                    .system()
-                    .label("player")
-                    .after("setup"),
-            )
-            .with_system(entities::spawn_follow_enemy.system().after("setup"))
-            .with_system(ui::spawn_player_ui.system().after("player")),
+    .add_systems(
+        (entities::spawn_shoot_enemy, entities::spawn_follow_enemy)
+            .chain()
+            .in_schedule(OnEnter(GameState::SpawnEnemies)),
     )
-    .add_system_set(
-        SystemSet::on_enter(GameState::Playing)
-            
-            // .with_system(entities::spawn_shoot_enemy.system()),
+    // should run player input before all other update systems
+    .add_system(systems::player_input.in_base_set(CoreSet::PreUpdate))
+    .add_systems(
+        (
+            systems::weapon_fire_rate,
+            systems::constant_weapon_fire,
+            systems::weapon_fired,
+        )
+            .chain(),
     )
-    .add_system_set(
-        SystemSet::on_update(GameState::Playing)
-            .with_system(systems::weapon_fire_rate.system().label("weapon_tick"))
-            .with_system(
-                systems::player_input
-                    .system()
-                    .label("player_input")
-                    // .after("weapon_tick"),
-            )
-            .with_system(
-                systems::constant_weapon_fire
-                    .system()
-                    .label("constant_weapon_fire")
-                    .after("weapon_tick"),
-            )
-            .with_system(systems::follow.system().label("follow"))
-            .with_system(
-                systems::tracking
-                    .system()
-                    .label("tracking")
-                    .after("player_input")
-                    .after("follow"),
-            )
-            .with_system(systems::position_system.system())
-            .with_system(systems::despawn_projectile.system())
-            .with_system(ui::update_player_ui.system())
-            .with_system(
-                systems::weapon_fired
-                    .system()
-                    .after("player_input")
-                    .after("constant_weapon_fire"),
-            ),
+    // systems we are okay with running in parallel during CoreSet::Update
+    .add_systems((
+        systems::tracking,
+        systems::follow,
+        systems::boundary_position_system,
+        systems::despawn_projectile,
+        ui::update_player_ui,
+    ))
+    // physiscs sytems run in parallel after "simulation" steps in CoreSet::PostUpdate
+    .add_systems(
+        (systems::update_movement, systems::update_tracking).in_base_set(CoreSet::PostUpdate),
     )
-    .add_system_set_to_stage(
-        CustomStages::Physics,
-        SystemSet::on_update(GameState::Playing)
-            .with_system(systems::update_movement.system())
-            .with_system(systems::update_tracking.system())
-            .with_system(systems::collision.system()),
-    )
+    // apply collision detection last, after all translations to entities have completed
+    .add_system(systems::collision.in_base_set(CoreSet::Last))
     .run();
     // .add_system_to_stage(
     //     CustomStages::Debug,
-    //     systems::debug::debug_projectiles.system(),
+    //     systems::debug::debug_projectiles,
     // )
-    // .insert_resource(ReportExecutionOrderAmbiguities)
-    // .add_plugin(RapierRenderPlugin)
 }

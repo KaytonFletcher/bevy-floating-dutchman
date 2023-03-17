@@ -6,7 +6,7 @@ mod player;
 mod projectile;
 mod setup;
 
-pub use boundary::position_system;
+pub use boundary::boundary_position_system;
 pub use collision::collision;
 pub use movement::follow;
 pub use movement::tracking;

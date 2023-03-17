@@ -5,62 +5,81 @@ use crate::{
     systems::MainCamera,
 };
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::camera::RenderTarget, window::PrimaryWindow};
 
 pub fn player_input(
     mut player_query: Query<(&mut Track, &mut Motion, &Weapon, Entity), With<Player>>,
-    mut evr_cursor: EventReader<CursorMoved>,
     mut weapon_fired: EventWriter<WeaponFired>,
-    camera_query: Query<&Transform, With<MainCamera>>,
+    camera_query: Query<(&Camera, &Transform), With<MainCamera>>,
     keyboard_input: Res<Input<KeyCode>>,
     buttons: Res<Input<MouseButton>>,
     // need to get window dimensions for mouse position
-    windows: Res<Windows>,
+    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
-    // assumes only one camera has been given the MainCamera component
-    let camera_transform = camera_query.iter().next().unwrap().clone();
-
     for (mut track_mouse, mut motion, weapon, entity) in player_query.iter_mut() {
-        motion.direction.x = 0.0;
-        motion.direction.y = 0.0;
+        let mut direction: Vec2 = Vec2::ZERO;
 
         if keyboard_input.pressed(KeyCode::A) {
-            motion.direction.x -= 1.0;
+            direction.x -= 1.0;
         }
 
         if keyboard_input.pressed(KeyCode::D) {
-            motion.direction.x += 1.0;
+            direction.x += 1.0;
         }
 
         if keyboard_input.pressed(KeyCode::W) {
-            motion.direction.y += 1.0;
+            direction.y += 1.0;
         }
 
         if keyboard_input.pressed(KeyCode::S) {
-            motion.direction.y -= 1.0;
+            direction.y -= 1.0;
         }
 
+        motion.direction = Quat::from_rotation_arc_2d(Vec2::X, direction.normalize_or_zero());
+
+        // println!("Vec2 direction: {}", direction);
+        // println!("Quat direction: {}", motion.direction);
+
+        motion.is_moving = direction != Vec2::ZERO;
+
+        // assumes only one camera has been given the MainCamera component
+        let (camera, camera_transform) = camera_query.single();
+
+        // get the window that the camera is displaying to (or the primary window)
+        // let wnd = if let RenderTarget::Window(id) = camera.target {
+        //     windows.get(id).unwrap()
+        // } else {
+        //     windows.get_single().unwrap()
+        // };
+
+        let wnd = windows.get_single().unwrap();
+
         // has a new mouse event occured
-        if let Some(cursor_event) = evr_cursor.iter().next_back() {
-            // get the size of the window that the event is for
-            let wnd = windows.get(cursor_event.id).unwrap();
+        if let Some(screen_pos) = wnd.cursor_position() {
+            // get the size of the window
             let size = Vec2::new(wnd.width() as f32, wnd.height() as f32);
+            // convert screen position [0..resolution] to ndc [-1..1] (gpu coordinates)
+            let ndc = (screen_pos / size) * 2.0 - Vec2::ONE;
 
-            // the default orthographic projection is in pixels from the center;
-            // just undo the translation
-            let p = cursor_event.position - size / 2.0;
+            // matrix for undoing the projection and camera transform
+            let ndc_to_world =
+                camera_transform.compute_matrix() * camera.projection_matrix().inverse();
 
-            // apply the camera transform
-            let mouse_pos = camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
+            // use it to convert ndc to world-space coordinates
+            let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
 
-            // update the position the player is tracking (rotating towards mouse pos)
-            track_mouse.pos = mouse_pos.into();
+            // reduce it to a 2D value and update the position
+            // the player is tracking (rotating towards mouse pos)
+            let world_pos: Vec2 = world_pos.truncate();
+            if !world_pos.is_nan() && world_pos != Vec2::ZERO {
+                track_mouse.pos = world_pos;
+            }
         }
 
         if buttons.pressed(MouseButton::Left) {
             // Left mouse button was pressed
-
             if weapon.fire_rate.finished() {
+                println!("Weapon Fired");
                 // hasn't been too quick since last press
                 weapon_fired.send(WeaponFired { entity });
             }

@@ -1,6 +1,8 @@
+use std::f32::consts::E;
+
 use bevy::prelude::*;
 
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier2d::prelude::{ExternalForce, ReadMassProperties, RigidBody, Velocity};
 
 use crate::{
     components::Motion,
@@ -9,40 +11,26 @@ use crate::{
 
 // Runs when the Track component is modified, applying angular velocity to the entity in the direction of the
 // entity being tracked
-pub fn update_tracking(
-    query: Query<(&Track, &RigidBodyHandleComponent)>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
-) {
-    for (track, rigid_body) in query.iter() {
-        // always true
-        if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
-            // angle between entity (rigid body) being tracked and the entity given the Track component
-            let mut new_angle = (track.pos.y - rb.position().translation.vector.y)
-                .atan2(track.pos.x - rb.position().translation.vector.x)
-                + track.get_offset();
+pub fn update_tracking(mut query: Query<(&Track, &mut Transform, &mut ExternalForce)>) {
+    for (track, mut transform, mut force) in query.iter_mut() {
+        // angle between entity (rigid body) being tracked and the entity given the Track component
+        let new_angle = (track.pos.y - transform.translation.y)
+            .atan2(track.pos.x - transform.translation.x)
+            + track.get_offset();
 
-            // subtracts tracked angle to get the difference in angles
-            new_angle -= rb.position().rotation.angle();
-
-            let torque = new_angle.sin() * track.rotate_acceleration * rb.mass();
-
-            rb.apply_torque_impulse(torque, true);
-        }
+        transform.rotation = Quat::from_rotation_z(new_angle);
     }
 }
 
 pub fn tracking(
     mut trackers: Query<&mut Track, Without<Player>>,
-    rb_query: Query<&RigidBodyHandleComponent>,
-    rigid_bodies: Res<RigidBodySet>,
+    rb_query: Query<&Transform, With<RigidBody>>,
 ) {
     for mut track in trackers.iter_mut() {
         if let Some(entity) = &track.entity_tracked {
-            if let Ok(rb_comp) = rb_query.get_component::<RigidBodyHandleComponent>(*entity) {
-                if let Some(rb) = rigid_bodies.get(rb_comp.handle()) {
-                    track.pos.x = rb.position().translation.x;
-                    track.pos.y = rb.position().translation.y;
-                }
+            if let Ok(transform) = rb_query.get(*entity) {
+                track.pos.x = transform.translation.x;
+                track.pos.y = transform.translation.y;
             }
         }
     }
@@ -51,56 +39,56 @@ pub fn tracking(
 // Runs when the Motion component is modified, applying linear force to the entity in the direction
 // specified by the Motion component
 pub fn update_movement(
-    query: Query<(&Motion, &RigidBodyHandleComponent)>,
-    mut rigid_bodies: ResMut<RigidBodySet>,
+    mut query: Query<(
+        &Motion,
+        &ReadMassProperties,
+        &mut ExternalForce,
+        &mut Velocity,
+    )>,
 ) {
-    for (motion, rigid_body) in query.iter() {
-        // Update the velocity on the rigid_body_component,
-        // the bevy_rapier plugin will update the Sprite transform.
-        if let Some(rb) = rigid_bodies.get_mut(rigid_body.handle()) {
-            let force = motion.acceleration * rb.mass();
-            let directed_force = motion.direction * force;
+    for (motion, mass_properties, mut external_force, mut velocity) in query.iter_mut() {
+        let rotation_matrix = Mat3::from_quat(motion.direction);
 
-            rb.apply_force(directed_force.into(), true);
+        let direction = rotation_matrix.x_axis.truncate().normalize();
 
-            // ensures the velocity of rigid body does not exceed the specified entities max velocity
-            // specifically when applying the force above ^^
-            // (specified on the Motion component)
-            rb.set_linvel(rb.linvel().cap_magnitude(motion.max_vel), false);
-        }
+        external_force.force = if motion.is_moving {
+            direction * motion.acceleration * mass_properties.0.mass
+        } else {
+            Vec2::ZERO
+        };
+
+        // ensures the velocity of rigid body does not exceed the specified entities max velocity
+        // specifically when applying the force above ^^
+        // (specified on the Motion component)
+        velocity.linvel = velocity.linvel.clamp_length_max(motion.max_vel);
     }
 }
 
 pub fn follow(
-    mut followers: Query<(&mut Motion, &Follow, &RigidBodyHandleComponent)>,
-    rb_query: Query<&RigidBodyHandleComponent>,
-    rigid_bodies: Res<RigidBodySet>,
+    mut followers: Query<(&mut Motion, &Follow, &Transform), With<RigidBody>>,
+    rb_query: Query<&Transform, With<RigidBody>>,
 ) {
-    for (mut motion, follow, rb_handle) in followers.iter_mut() {
-        if let Some(follower_rb) = rigid_bodies.get(rb_handle.handle()) {
-            if let Ok(rb_comp) = rb_query.get_component::<RigidBodyHandleComponent>(follow.entity) {
-                if let Some(being_followed_rb) = rigid_bodies.get(rb_comp.handle()) {
-                    let follower_pos = follower_rb.position().translation;
-                    let being_followed_pos = being_followed_rb.position().translation;
+    for (mut motion, follow, follower_transform) in followers.iter_mut() {
+        if let Ok(followed_transform) = rb_query.get(follow.entity) {
+            let follower_pos = follower_transform.translation;
+            let being_followed_pos = followed_transform.translation;
 
-                    // we calculate the x and y translation between the entity being followed
-                    // and the entity following. This ensures the follower will move in the direction
-                    // of the entity (Rigid body component) being followed
-                    let x = being_followed_pos.x - follower_pos.x;
-                    let y = being_followed_pos.y - follower_pos.y;
+            // we calculate the x and y translation between the entity being followed
+            // and the entity following. This ensures the follower will move in the direction
+            // of the entity (Rigid body component) being followed
+            let x = being_followed_pos.x - follower_pos.x;
+            let y = being_followed_pos.y - follower_pos.y;
 
-                    let new_follow_pos = Vec2::new(x, y);
+            let new_follow_pos = Vec2::new(x, y);
 
-                    let mut mult = 1.0;
-
-                    if let Some(space) = follow.space {
-                        if new_follow_pos.length() < space {
-                            mult = -1.0;
-                        }
-                    }
-                    motion.direction = Vec2::new(x, y).normalize() * mult;
-                }
+            if let Some(space) = follow.space {
+                motion.is_moving = new_follow_pos.length() >= space;
             }
+
+            // angle between entity (rigid body) being tracked and the entity given the Track component
+            let new_angle = (new_follow_pos.y).atan2(new_follow_pos.x);
+
+            motion.direction = Quat::from_rotation_z(new_angle);
         }
     }
 }

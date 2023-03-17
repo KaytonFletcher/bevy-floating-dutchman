@@ -3,8 +3,10 @@ use bevy::prelude::*;
 use crate::{
     components::{Health, Player},
     labels::GameState,
+    resources::UIAssets,
 };
 
+#[derive(Component)]
 pub struct Heart {
     id: f32,
     half: bool,
@@ -12,47 +14,42 @@ pub struct Heart {
 
 pub fn spawn_player_ui(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    mut app_state: ResMut<State<GameState>>,
-    asset_server: Res<AssetServer>,
+    mut game_state: ResMut<NextState<GameState>>,
+    ui_assets: Res<UIAssets>,
 ) {
-    let heart_outline_handle = materials.add(asset_server.load("sprites/heart_outline.png").into());
-    let full_heart_handle = materials.add(asset_server.load("sprites/full_heart.png").into());
-    let half_heart_handle = materials.add(asset_server.load("sprites/half_heart.png").into());
-
     let num_hearts = 4;
 
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 justify_content: JustifyContent::SpaceBetween,
                 ..Default::default()
             },
-            material: materials.add(Color::NONE.into()),
+            background_color: Color::NONE.into(),
             ..Default::default()
         })
         .with_children(|parent| {
             for i in 0..num_hearts {
-                let pos = Rect {
+                let pos = UiRect {
                     left: Val::Px((80.0 * (i as f32)) + 10.0),
                     bottom: Val::Px(10.0),
                     ..Default::default()
                 };
 
                 parent
-                    .spawn_bundle(NodeBundle {
+                    .spawn(ImageBundle {
                         style: Style {
                             size: Size::new(Val::Px(100.0), Val::Px(100.0)),
                             position_type: PositionType::Absolute,
                             position: pos,
                             ..Default::default()
                         },
-                        visible: Visible {
-                            is_visible: false,
-                            ..Default::default()
+                        visibility: Visibility::Visible,
+                        image: UiImage {
+                            texture: ui_assets.heart_half.clone(),
+                            ..default()
                         },
-                        material: half_heart_handle.clone(),
                         ..Default::default()
                     })
                     .insert(Heart {
@@ -60,26 +57,32 @@ pub fn spawn_player_ui(
                         half: true,
                     });
 
-                parent.spawn_bundle(NodeBundle {
+                parent.spawn(ImageBundle {
                     style: Style {
                         size: Size::new(Val::Px(100.0), Val::Px(100.0)),
                         position_type: PositionType::Absolute,
                         position: pos,
                         ..Default::default()
                     },
-                    material: heart_outline_handle.clone(),
+                    image: UiImage {
+                        texture: ui_assets.heart_outline.clone(),
+                        ..default()
+                    },
                     ..Default::default()
                 });
 
                 parent
-                    .spawn_bundle(NodeBundle {
+                    .spawn(ImageBundle {
                         style: Style {
                             size: Size::new(Val::Px(100.0), Val::Px(100.0)),
                             position_type: PositionType::Absolute,
                             position: pos,
                             ..Default::default()
                         },
-                        material: full_heart_handle.clone(),
+                        image: UiImage {
+                            texture: ui_assets.heart_full.clone(),
+                            ..default()
+                        },
                         ..Default::default()
                     })
                     .insert(Heart {
@@ -88,11 +91,11 @@ pub fn spawn_player_ui(
                     });
             }
         });
-    app_state.set(GameState::Playing).unwrap();
+    game_state.set(GameState::SpawnEnemies);
 }
 
 pub fn update_player_ui(
-    mut hearts: Query<(&mut Visible, &Heart)>,
+    mut hearts: Query<(&mut Visibility, &Heart)>,
     player_query: Query<&Health, (With<Player>, Changed<Health>)>,
 ) {
     for health in player_query.iter() {
@@ -100,8 +103,13 @@ pub fn update_player_ui(
             // all half and full hearts exist in the world and this logic determines which get drawn
             // at most one half heart of the players health will be visible (the last half)
             // the rest of the health will be full hearts displayed
-            visible.is_visible = (heart.id == health.current_health)
+            *visible = if (heart.id == health.current_health)
                 || (heart.id < health.current_health && !heart.half)
+            {
+                Visibility::Visible
+            } else {
+                Visibility::Hidden
+            }
         }
     }
 }

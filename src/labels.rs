@@ -1,14 +1,17 @@
-use bevy::prelude::StageLabel;
-#[derive(Debug, Clone, PartialEq, Eq, Hash, StageLabel)]
-pub enum CustomStages {
+use bevy::prelude::*;
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum CustomSets {
     Physics,
-    Debug,
+    Player,
+    Movement,
 }
 
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+#[derive(Clone, Eq, PartialEq, Default, Debug, Hash, States)]
 pub enum GameState {
-  AssetLoading,
-  InitialSpawn,
-  Playing,
+    #[default]
+    AssetLoading,
+    SpawnPlayer,
+    SpawnEnemies,
+    Playing,
 }
-

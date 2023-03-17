@@ -1,39 +1,36 @@
 use std::f32::consts::PI;
 
 use bevy::prelude::*;
-
-use bevy_rapier2d::rapier::{
-    dynamics::RigidBodyBuilder,
-    geometry::{ColliderBuilder, InteractionGroups},
-};
+use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::{Damage, Follow, Health, Motion, Player, ProjectileBundle, Track, Weapon},
+    components::{
+        Damage, EnemyBuilder, EnemyBundle, Follow, Health, Motion, Player, ProjectileBundle, Track,
+        Weapon,
+    },
+    labels::GameState,
     resources::SpriteAssets,
 };
 
 pub fn spawn_follow_enemy(
     mut commands: Commands,
+    mut game_state: ResMut<NextState<GameState>>,
     player_query: Query<Entity, With<Player>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     sprites: Res<SpriteAssets>,
 ) {
     const ENEMY_SCALE: f32 = 2.5;
-    const ENEMY_WIDTH: f32 = 12.0 * ENEMY_SCALE;
-    const ENEMY_HEIGHT: f32 = 20.0 * ENEMY_SCALE;
-    const ENEMY_SPEED: f32 = 250.0;
-    const ENEMT_ACCEL: f32 = 100.0;
+    const ENEMY_WIDTH: f32 = 12.0;
+    const ENEMY_HEIGHT: f32 = 20.0;
+    const ENEMY_SPEED: f32 = 700.0;
+    const ENEMT_ACCEL: f32 = 500.0;
     const ENEMY_ROTATE_ACCEL: f32 = 300.0;
 
-    // let player_id = player_query.single().unwrap();
-    println!("BRUHHHH");
+    let player_id = player_query.single();
 
     let mut tracker = Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0);
-    // tracker.with_entity(player_id);
+    tracker.with_entity(player_id);
 
-    let mut enemy_builder = commands.spawn();
-
-    let enemy_entity = enemy_builder.id();
+    let mut enemy_builder = commands.spawn_empty();
 
     enemy_builder
         .insert(Motion {
@@ -42,37 +39,33 @@ pub fn spawn_follow_enemy(
             ..Default::default()
         })
         .insert(tracker)
-        .insert(Health::new(4.0))
-        // .insert(Follow::new(player_id))
+        .insert(Follow::new(player_id))
         .insert(Damage { amount: 0.5 })
-        .insert_bundle(SpriteBundle {
+        .insert(Damping {
+            angular_damping: 1.0,
+            linear_damping: 0.5,
+        })
+        .insert(SpriteBundle {
             transform: Transform {
                 translation: Vec3::new(300.0, 300.0, 1.0),
                 scale: Vec3::new(ENEMY_SCALE, ENEMY_SCALE, 1.0),
                 ..Default::default()
             },
-            material: materials.add(sprites.follow_enemy.clone().into()),
+            texture: sprites.follow_enemy.clone(),
             ..Default::default()
         })
         .insert(
-            RigidBodyBuilder::new_dynamic()
-                .linear_damping(1.0)
-                .angular_damping(6.0)
-                .translation(300.0, 300.0)
-                .user_data(enemy_entity.to_bits() as u128),
-        )
-        .insert(
-            ColliderBuilder::cuboid(ENEMY_WIDTH / 2.0, ENEMY_HEIGHT / 2.0)
-                .collision_groups(InteractionGroups::new(0x00001, 0x00110)),
+            EnemyBuilder::new(ENEMY_WIDTH, ENEMY_HEIGHT)
+                .with_health(2.0)
+                .build(),
         );
-        println!("BRUHHHH2");
 
+    game_state.set(GameState::Playing)
 }
 
 pub fn spawn_shoot_enemy(
     mut commands: Commands,
     player_query: Query<Entity, With<Player>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     sprites: Res<SpriteAssets>,
 ) {
     const ENEMY_SCALE: f32 = 2.5;
@@ -82,7 +75,7 @@ pub fn spawn_shoot_enemy(
     const ENEMT_ACCEL: f32 = 100.0;
     const ENEMY_ROTATE_ACCEL: f32 = 300.0;
 
-    let player_id = player_query.single().unwrap();
+    let player_id = player_query.single();
 
     println!("spawn enemy");
 
@@ -92,24 +85,22 @@ pub fn spawn_shoot_enemy(
     let enemy_weapon = Weapon {
         projectile: ProjectileBundle {
             sprite: SpriteBundle {
-                material: materials.add(sprites.enemy_bullet.clone().into()),
+                texture: sprites.enemy_bullet.clone(),
                 ..Default::default()
             },
-            motion: Motion {
-                acceleration: 10000.0,
-                max_vel: 300.0,
-                ..Default::default()
-            },
+            // motion: Motion {
+            //     acceleration: 10000.0,
+            //     max_vel: 300.0,
+            //     ..Default::default()
+            // },
             ..Default::default()
         },
         pos_offset: 70.0,
-        fire_rate: Timer::from_seconds(0.8, false),
+        fire_rate: Timer::from_seconds(0.8, TimerMode::Once),
         ..Default::default()
     };
 
-    let mut enemy_builder = commands.spawn();
-
-    let enemy_entity = enemy_builder.id();
+    let mut enemy_builder = commands.spawn_empty();
 
     enemy_builder
         .insert(Motion {
@@ -118,31 +109,28 @@ pub fn spawn_shoot_enemy(
             ..Default::default()
         })
         .insert(tracker)
-        .insert(Health::new(4.0))
         .insert(Follow {
             entity: player_id,
-            space: Some(300.0),
+            space: Some(700.0),
+        })
+        .insert(Damping {
+            angular_damping: 3.0,
+            linear_damping: 1.0,
         })
         .insert(Damage { amount: 0.5 })
-        .insert_bundle(SpriteBundle {
+        .insert(SpriteBundle {
             transform: Transform {
                 translation: Vec3::new(300.0, 300.0, 1.0),
                 scale: Vec3::new(ENEMY_SCALE, ENEMY_SCALE, 1.0),
                 ..Default::default()
             },
-            material: materials.add(sprites.shoot_enemy.clone().into()),
+            texture: sprites.shoot_enemy.clone(),
             ..Default::default()
         })
-        .insert(enemy_weapon)
+        // .insert(enemy_weapon)
         .insert(
-            RigidBodyBuilder::new_dynamic()
-                .linear_damping(1.0)
-                .angular_damping(6.0)
-                .translation(-600.0, -300.0)
-                .user_data(enemy_entity.to_bits() as u128),
-        )
-        .insert(
-            ColliderBuilder::cuboid(ENEMY_WIDTH / 2.0, ENEMY_HEIGHT / 2.0)
-                .collision_groups(InteractionGroups::new(0x00001, 0x00110)),
+            EnemyBuilder::new(ENEMY_WIDTH, ENEMY_HEIGHT)
+                .with_health(2.0)
+                .build(),
         );
 }

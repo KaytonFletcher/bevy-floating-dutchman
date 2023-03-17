@@ -1,5 +1,6 @@
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Component};
 
+#[derive(Component)]
 pub struct Follow {
     pub entity: Entity,
     pub space: Option<f32>,

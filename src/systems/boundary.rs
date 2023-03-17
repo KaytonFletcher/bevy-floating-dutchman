@@ -1,42 +1,27 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier2d::prelude::{RigidBody, Velocity};
 
-pub fn position_system(
-    mut bodies: ResMut<RigidBodySet>,
-    query: Query<&RigidBodyHandleComponent>,
-    windows: Res<Windows>,
+pub fn boundary_position_system(
+    mut query: Query<(&mut Transform, &Velocity), With<RigidBody>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
 ) {
-    for body_handle in &mut query.iter() {
-        let body = bodies.get_mut(body_handle.handle()).unwrap();
-
-        let mut x = body.position().translation.vector.x;
-        let mut y = body.position().translation.vector.y;
-        let mut updated = false;
-
-        let window = windows.get_primary().unwrap();
+    for (mut transform, velocity) in &mut query.iter_mut() {
+        let window = windows.get_single().unwrap();
         // Wrap around screen edges
         let half_width = window.width() / 2.0;
         let half_height = window.height() / 2.0;
-        if x < -half_width && body.linvel().x < 0.0 {
-            x = half_width;
-            updated = true;
-        } else if x > half_width && body.linvel().x > 0.0 {
-            x = -half_width;
-            updated = true;
+
+        if transform.translation.x < -half_width && velocity.linvel.x < 0.0 {
+            transform.translation.x = half_width;
+        } else if transform.translation.x > half_width && velocity.linvel.x > 0.0 {
+            transform.translation.x = -half_width;
         }
-        if y < -half_height && body.linvel().y < 0.0 {
-            y = half_height;
-            updated = true;
-        } else if y > half_height && body.linvel().y > 0.0 {
-            y = -half_height;
-            updated = true;
-        }
-        if updated {
-            let mut new_position = body.position().clone();
-            new_position.translation.vector.x = x;
-            new_position.translation.vector.y = y;
-            body.set_position(new_position, false);
+
+        if transform.translation.y < -half_height && velocity.linvel.y < 0.0 {
+            transform.translation.y = half_height;
+        } else if transform.translation.y > half_height && velocity.linvel.y > 0.0 {
+            transform.translation.y = -half_height;
         }
     }
 }

@@ -1,20 +1,17 @@
 use bevy::prelude::*;
-use bevy_rapier2d::{physics::RigidBodyHandleComponent, rapier::dynamics::RigidBodySet};
+use bevy_rapier2d::prelude::RigidBody;
 
 use crate::components::{Motion, Projectile};
 
 pub fn debug_projectiles(
-    projectile_query: Query<(&Motion, &Projectile, &RigidBodyHandleComponent, Entity)>,
-    rigid_bodies: Res<RigidBodySet>,
+    projectile_query: Query<(&Motion, &Transform, Entity), (With<RigidBody>, With<Projectile>)>,
 ) {
-    for (motion, _, rb_handle, entity) in projectile_query.iter() {
-        if let Some(rb) = rigid_bodies.get(rb_handle.handle()) {
-            println!(
-                "Projectile with ID: {:?} Position: {:?} Direction: {:?}",
-                entity.id(),
-                rb.position().translation.vector,
-                motion.direction
-            );
-        }
+    for (motion, transform, entity) in projectile_query.iter() {
+        println!(
+            "Projectile with Entity: {:?} Position: {:?} Direction: {:?}",
+            entity,
+            transform.translation,
+            motion.direction
+        );
     }
 }
