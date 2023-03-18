@@ -88,6 +88,7 @@ pub fn spawn_shoot_enemy(
                 texture: sprites.enemy_bullet.clone(),
                 ..Default::default()
             },
+            collision_group: CollisionGroups::new(Group::GROUP_2, Group::GROUP_1),
             // motion: Motion {
             //     acceleration: 10000.0,
             //     max_vel: 300.0,

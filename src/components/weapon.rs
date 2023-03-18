@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 use super::{Damage, Health, Motion};
 
@@ -37,6 +38,7 @@ impl Default for Projectile {
 #[derive(Bundle, Clone)]
 pub struct ProjectileBundle {
     pub projectile: Projectile,
+    pub collision_group: CollisionGroups,
     //pub motion: Motion,
     pub health: Health,
     pub damage: Damage,
@@ -48,6 +50,7 @@ pub struct ProjectileBundle {
 impl Default for ProjectileBundle {
     fn default() -> Self {
         ProjectileBundle {
+            collision_group: CollisionGroups::new(Group::GROUP_1, Group::GROUP_2),
             health: Health::new(0.01),
             projectile: Projectile::default(),
             //motion: Motion::default(),
