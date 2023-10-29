@@ -5,8 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     components::{
-        Damage, EnemyBuilder, EnemyBundle, Follow, Health, Motion, Player, ProjectileBundle, Track,
-        Weapon,
+        Damage, EnemyBuilder, Follow, Health, Motion, Player, ProjectileBundle, Track, Weapon,
     },
     labels::GameState,
     resources::SpriteAssets,
@@ -19,8 +18,8 @@ pub fn spawn_follow_enemy(
     sprites: Res<SpriteAssets>,
 ) {
     const ENEMY_SCALE: f32 = 2.5;
-    const ENEMY_WIDTH: f32 = 12.0;
-    const ENEMY_HEIGHT: f32 = 20.0;
+    const ENEMY_SIZE: Vec2 = Vec2::new(12.0, 20.0);
+    const START_POS: Vec2 = Vec2::new(300.0, 300.0);
     const ENEMY_SPEED: f32 = 700.0;
     const ENEMT_ACCEL: f32 = 500.0;
     const ENEMY_ROTATE_ACCEL: f32 = 300.0;
@@ -33,11 +32,6 @@ pub fn spawn_follow_enemy(
     let mut enemy_builder = commands.spawn_empty();
 
     enemy_builder
-        .insert(Motion {
-            max_vel: ENEMY_SPEED,
-            acceleration: ENEMT_ACCEL,
-            ..Default::default()
-        })
         .insert(tracker)
         .insert(Follow::new(player_id))
         .insert(Damage { amount: 0.5 })
@@ -45,19 +39,20 @@ pub fn spawn_follow_enemy(
             angular_damping: 1.0,
             linear_damping: 0.5,
         })
-        .insert(SpriteBundle {
-            transform: Transform {
-                translation: Vec3::new(300.0, 300.0, 1.0),
-                scale: Vec3::new(ENEMY_SCALE, ENEMY_SCALE, 1.0),
-                ..Default::default()
-            },
-            texture: sprites.follow_enemy.clone(),
-            ..Default::default()
-        })
         .insert(
-            EnemyBuilder::new(ENEMY_WIDTH, ENEMY_HEIGHT)
-                .with_health(2.0)
-                .build(),
+            EnemyBuilder::new(
+                ENEMY_SIZE,
+                ENEMY_SCALE,
+                START_POS,
+                sprites.follow_enemy.clone(),
+            )
+            .with_health(2.0)
+            .with_motion(Motion {
+                max_vel: ENEMY_SPEED,
+                acceleration: ENEMT_ACCEL,
+                ..Default::default()
+            })
+            .build(),
         );
 
     game_state.set(GameState::Playing)
@@ -69,15 +64,14 @@ pub fn spawn_shoot_enemy(
     sprites: Res<SpriteAssets>,
 ) {
     const ENEMY_SCALE: f32 = 2.5;
-    const ENEMY_WIDTH: f32 = 32.0 * ENEMY_SCALE;
-    const ENEMY_HEIGHT: f32 = 32.0 * ENEMY_SCALE;
+    const ENEMY_SIZE: Vec2 = Vec2::new(32.0, 32.0);
+    const START_POS: Vec2 = Vec2::new(800.0, 200.0);
+
     const ENEMY_SPEED: f32 = 250.0;
     const ENEMT_ACCEL: f32 = 100.0;
     const ENEMY_ROTATE_ACCEL: f32 = 300.0;
 
     let player_id = player_query.single();
-
-    println!("spawn enemy");
 
     let mut tracker = Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0);
     tracker.with_entity(player_id);
@@ -89,11 +83,6 @@ pub fn spawn_shoot_enemy(
                 ..Default::default()
             },
             collision_group: CollisionGroups::new(Group::GROUP_2, Group::GROUP_1),
-            // motion: Motion {
-            //     acceleration: 10000.0,
-            //     max_vel: 300.0,
-            //     ..Default::default()
-            // },
             ..Default::default()
         },
         pos_offset: 70.0,
@@ -104,11 +93,6 @@ pub fn spawn_shoot_enemy(
     let mut enemy_builder = commands.spawn_empty();
 
     enemy_builder
-        .insert(Motion {
-            max_vel: ENEMY_SPEED,
-            acceleration: ENEMT_ACCEL,
-            ..Default::default()
-        })
         .insert(tracker)
         .insert(Follow {
             entity: player_id,
@@ -119,19 +103,15 @@ pub fn spawn_shoot_enemy(
             linear_damping: 1.0,
         })
         .insert(Damage { amount: 0.5 })
-        .insert(SpriteBundle {
-            transform: Transform {
-                translation: Vec3::new(300.0, 300.0, 1.0),
-                scale: Vec3::new(ENEMY_SCALE, ENEMY_SCALE, 1.0),
-                ..Default::default()
-            },
-            texture: sprites.shoot_enemy.clone(),
-            ..Default::default()
-        })
-        // .insert(enemy_weapon)
+        .insert(enemy_weapon)
         .insert(
-            EnemyBuilder::new(ENEMY_WIDTH, ENEMY_HEIGHT)
+            EnemyBuilder::new(ENEMY_SIZE, 2.5, START_POS, sprites.shoot_enemy.clone())
                 .with_health(2.0)
+                .with_motion(Motion {
+                    max_vel: ENEMY_SPEED,
+                    acceleration: ENEMT_ACCEL,
+                    ..Default::default()
+                })
                 .build(),
         );
 }

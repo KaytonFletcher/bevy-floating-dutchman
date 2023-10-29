@@ -37,6 +37,6 @@ pub fn spawn_projectile(
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Velocity {
             angvel: 0.0,
-            linvel: direction.truncate() * 1000.0,
+            linvel: direction.truncate() * 600.0,
         });
 }

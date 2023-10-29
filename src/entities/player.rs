@@ -12,8 +12,8 @@ pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
     const SPRITE_DIM: f32 = 549.;
     const WIDTH: f32 = SPRITE_DIM - 350.;
     const HEIGHT: f32 = SPRITE_DIM - 80.;
-    const SPEED: f32 = 500.0;
-    const ACCEL: f32 = 400.0;
+    const SPEED: f32 = 900.0;
+    const ACCEL: f32 = 600.0;
     const ROTATE_ACCEL: f32 = 10.0;
     const SPRITE_OFFSET: f32 = std::f32::consts::PI / 2.0;
 
@@ -46,7 +46,7 @@ pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
             texture: sprites.player.clone(),
             ..Default::default()
         })
-        .insert(Player {})
+        .insert(Player { score: 0 })
         .insert(Health::new(4.0))
         .insert(Track::new(ROTATE_ACCEL, SPRITE_OFFSET))
         .insert(Damage { amount: 4.0 })

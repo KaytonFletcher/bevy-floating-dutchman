@@ -1,4 +1,4 @@
-use std::f32::consts::E;
+use std::f32::consts::{E, PI};
 
 use bevy::prelude::*;
 
@@ -81,12 +81,15 @@ pub fn follow(
 
             let new_follow_pos = Vec2::new(x, y);
 
-            if let Some(space) = follow.space {
-                motion.is_moving = new_follow_pos.length() >= space;
-            }
-
             // angle between entity (rigid body) being tracked and the entity given the Track component
-            let new_angle = (new_follow_pos.y).atan2(new_follow_pos.x);
+            let mut new_angle = (new_follow_pos.y).atan2(new_follow_pos.x);
+
+            if let Some(space) = follow.space {
+                // motion.is_moving = new_follow_pos.length() >= space;
+                if new_follow_pos.length() < space {
+                    new_angle = new_angle + PI;
+                }
+            }
 
             motion.direction = Quat::from_rotation_z(new_angle);
         }

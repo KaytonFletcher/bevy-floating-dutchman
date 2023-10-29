@@ -1,4 +1,4 @@
-use bevy::prelude::{Entity, Component};
+use bevy::prelude::{Component, Entity};
 
 #[derive(Component)]
 pub struct Follow {
@@ -8,6 +8,9 @@ pub struct Follow {
 
 impl Follow {
     pub fn new(entity: Entity) -> Self {
-        Self { entity, space: None }
+        Self {
+            entity,
+            space: None,
+        }
     }
 }

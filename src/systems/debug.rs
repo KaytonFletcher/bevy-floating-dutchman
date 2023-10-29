@@ -9,9 +9,7 @@ pub fn debug_projectiles(
     for (motion, transform, entity) in projectile_query.iter() {
         println!(
             "Projectile with Entity: {:?} Position: {:?} Direction: {:?}",
-            entity,
-            transform.translation,
-            motion.direction
+            entity, transform.translation, motion.direction
         );
     }
 }

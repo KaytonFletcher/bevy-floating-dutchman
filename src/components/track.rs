@@ -1,4 +1,4 @@
-use bevy::prelude::{Entity, Vec2, Component};
+use bevy::prelude::{Component, Entity, Vec2};
 
 #[derive(Component)]
 pub struct Track {

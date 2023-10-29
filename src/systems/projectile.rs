@@ -20,7 +20,7 @@ pub fn constant_weapon_fire(
     for (weapon, entity) in query.iter_mut() {
         if weapon.fire_rate.finished() {
             // hasn't been too quick since last press
-            weapons_fired.send(WeaponFired { entity });
+            weapons_fired.send(WeaponFired(entity));
         }
     }
 }
@@ -30,8 +30,8 @@ pub fn weapon_fired(
     mut query: Query<(&mut Weapon, &Track, &Transform)>,
     mut weapons_fired: EventReader<WeaponFired>,
 ) {
-    for event in weapons_fired.iter() {
-        if let Ok((mut weapon, track, transform)) = query.get_mut(event.entity) {
+    for WeaponFired(entity) in weapons_fired.iter() {
+        if let Ok((mut weapon, track, transform)) = query.get_mut(*entity) {
             spawn_projectile(&mut commands, &transform, &weapon, track.get_offset());
             weapon.fire_rate.reset();
         }

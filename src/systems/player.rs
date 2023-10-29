@@ -5,7 +5,7 @@ use crate::{
     systems::MainCamera,
 };
 
-use bevy::{prelude::*, render::camera::RenderTarget, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 
 pub fn player_input(
     mut player_query: Query<(&mut Track, &mut Motion, &Weapon, Entity), With<Player>>,
@@ -81,7 +81,7 @@ pub fn player_input(
             if weapon.fire_rate.finished() {
                 println!("Weapon Fired");
                 // hasn't been too quick since last press
-                weapon_fired.send(WeaponFired { entity });
+                weapon_fired.send(WeaponFired(entity));
             }
         }
     }
