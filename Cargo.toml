@@ -10,9 +10,9 @@ edition = "2021"
 resolver = "2" #
 
 [dependencies]
-bevy = { version = "0.10.0" }
-bevy_rapier2d = "0.21.0"
-bevy_asset_loader = "0.15" 
+bevy = { version = "0.11.0" }
+bevy_rapier2d = "0.22.0"
+bevy_asset_loader = "0.17" 
 nalgebra = { version = "0.25", features = [ "convert-glam" ] }
 
 # Enable a small amount of optimization in debug mode

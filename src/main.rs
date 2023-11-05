@@ -28,26 +28,24 @@ fn main() {
         }),
         ..default()
     }))
-    .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-    .add_plugin(RapierDebugRenderPlugin::default())
+    .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
+    .add_plugins(RapierDebugRenderPlugin::default())
     .add_state::<GameState>()
-    .add_plugin(AssetLoadingPlugin)
+    .add_plugins(AssetLoadingPlugin)
     .add_event::<WeaponFired>()
     // one-time systems for setting up the world space
     // may be able to add these to startup schedule instead
-    .add_systems(
+    .add_systems(OnEnter(GameState::SpawnPlayer),
         (systems::setup, entities::spawn_player, ui::spawn_player_ui)
             .chain()
-            .in_schedule(OnEnter(GameState::SpawnPlayer)),
     )
-    .add_systems(
+    .add_systems(OnEnter(GameState::SpawnEnemies),
         (entities::spawn_shoot_enemy, entities::spawn_follow_enemy)
             .chain()
-            .in_schedule(OnEnter(GameState::SpawnEnemies)),
     )
     // should run player input before all other update systems
-    .add_system(systems::player_input.in_base_set(CoreSet::PreUpdate))
-    .add_systems(
+    .add_systems(PreUpdate, systems::player_input)
+    .add_systems(Update,
         (
             systems::weapon_fire_rate,
             systems::constant_weapon_fire,
@@ -56,7 +54,7 @@ fn main() {
             .chain(),
     )
     // systems we are okay with running in parallel during CoreSet::Update
-    .add_systems((
+    .add_systems(Update,(
         systems::tracking,
         systems::follow,
         systems::boundary_position_system,
@@ -64,11 +62,11 @@ fn main() {
         ui::update_player_ui,
     ))
     // physiscs sytems run in parallel after "simulation" steps in CoreSet::PostUpdate
-    .add_systems(
-        (systems::update_movement, systems::update_tracking).in_base_set(CoreSet::PostUpdate),
+    .add_systems(PostUpdate,
+        (systems::update_movement, systems::update_tracking),
     )
     // apply collision detection last, after all translations to entities have completed
-    .add_system(systems::collision.in_base_set(CoreSet::Last))
+    .add_systems(Last, systems::collision)
     .run();
     // .add_system_to_stage(
     //     CustomStages::Debug,

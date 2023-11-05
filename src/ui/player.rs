@@ -22,7 +22,8 @@ pub fn spawn_player_ui(
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 justify_content: JustifyContent::SpaceBetween,
                 ..Default::default()
             },
@@ -31,18 +32,17 @@ pub fn spawn_player_ui(
         })
         .with_children(|parent| {
             for i in 0..num_hearts {
-                let pos = UiRect {
-                    left: Val::Px((80.0 * (i as f32)) + 10.0),
-                    bottom: Val::Px(10.0),
-                    ..Default::default()
-                };
-
+                let left = Val::Px((80.0 * (i as f32)) + 10.0);
+                let top = Val::Px(10.0);
+     
                 parent
                     .spawn(ImageBundle {
                         style: Style {
-                            size: Size::new(Val::Px(100.0), Val::Px(100.0)),
+                            width: Val::Px(100.0),
+                            height: Val::Px(100.0),
                             position_type: PositionType::Absolute,
-                            position: pos,
+                            left,
+                            top,
                             ..Default::default()
                         },
                         visibility: Visibility::Visible,
@@ -59,9 +59,11 @@ pub fn spawn_player_ui(
 
                 parent.spawn(ImageBundle {
                     style: Style {
-                        size: Size::new(Val::Px(100.0), Val::Px(100.0)),
+                        width: Val::Px(100.0),
+                        height: Val::Px(100.0),
                         position_type: PositionType::Absolute,
-                        position: pos,
+                        left,
+                        top,
                         ..Default::default()
                     },
                     image: UiImage {
@@ -74,9 +76,11 @@ pub fn spawn_player_ui(
                 parent
                     .spawn(ImageBundle {
                         style: Style {
-                            size: Size::new(Val::Px(100.0), Val::Px(100.0)),
+                            width: Val::Px(100.0),
+                            height: Val::Px(100.0),
                             position_type: PositionType::Absolute,
-                            position: pos,
+                            left,
+                            top,
                             ..Default::default()
                         },
                         image: UiImage {

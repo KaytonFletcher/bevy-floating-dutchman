@@ -42,8 +42,7 @@ pub struct ProjectileBundle {
     //pub motion: Motion,
     pub health: Health,
     pub damage: Damage,
-
-    #[bundle]
+    
     pub sprite: SpriteBundle,
 }
 

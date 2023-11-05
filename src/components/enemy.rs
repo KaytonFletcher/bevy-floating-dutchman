@@ -8,7 +8,6 @@ use super::{Health, Motion, Score};
 pub struct StaticEnemyBundle {
     pub health: Health,
     pub score: Score,
-    #[bundle]
     pub sprite_bundle: SpriteBundle,
 
     // This is what we modify when moving entities. Because the game is in space,
@@ -37,7 +36,6 @@ pub struct MovingEnemyBundle {
     // via forces when the physics systems tick again
     // This struct can be expanded to incorporate more complex movement data in the future
     pub motion: Motion,
-    #[bundle]
     pub static_enemy: StaticEnemyBundle,
 }
 

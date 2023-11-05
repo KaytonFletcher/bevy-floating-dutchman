@@ -1,7 +1,11 @@
-use bevy::prelude::Entity;
+use bevy::prelude::{Entity, Event};
 
-use crate::components::{Damage, Health};
-
+#[derive(Event)]
 pub struct WeaponFired(pub Entity);
 
-pub struct DamageEvent(Entity, Damage, Health);
+#[derive(Event)]
+pub struct EntityKilled(pub Entity);
+
+
+#[derive(Event)]
+pub struct PlayerKilled(pub Entity);
