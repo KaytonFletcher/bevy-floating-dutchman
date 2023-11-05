@@ -34,7 +34,7 @@ pub fn spawn_player_ui(
             for i in 0..num_hearts {
                 let left = Val::Px((80.0 * (i as f32)) + 10.0);
                 let top = Val::Px(10.0);
-     
+
                 parent
                     .spawn(ImageBundle {
                         style: Style {

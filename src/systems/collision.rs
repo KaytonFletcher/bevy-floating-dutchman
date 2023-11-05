@@ -13,7 +13,7 @@ pub fn collision(
     mut collision_event_reader: EventReader<CollisionEvent>,
     mut contact_event_reader: EventReader<ContactForceEvent>,
 ) {
-    // let (player_entity, mut player) = player_query.get_single_mut().unwrap();
+    let (player_entity, mut player) = player_query.get_single_mut().unwrap();
 
     for collision_event in collision_event_reader.iter() {
         match collision_event {
@@ -39,9 +39,6 @@ fn if_valid_deal_damage(
     e2: &Entity,
 ) {
     if let (Ok(mut health), Ok(damage)) = (damaged_query.get_mut(*e1), damager_query.get(*e2)) {
-        if health.damage(damage.amount) {
-            
-
-        }
+        if health.damage(damage.amount) {}
     }
 }

@@ -1,13 +1,17 @@
 use bevy::prelude::*;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
-pub enum CustomSets {
-    Physics,
-    Player,
-    Movement,
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+pub enum MainSet {
+    MainMenu,
+    GamePlay,
 }
 
-#[derive(Clone, Eq, PartialEq, Default, Debug, Hash, States)]
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+pub enum GamePlaySet {
+    Input,
+}
+
+#[derive(States, Clone, Eq, PartialEq, Default, Debug, Hash)]
 pub enum GameState {
     #[default]
     AssetLoading,
