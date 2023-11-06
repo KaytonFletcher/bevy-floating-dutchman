@@ -1,6 +1,7 @@
 mod boundary;
 mod collision;
 pub mod debug;
+mod handle_death;
 mod movement;
 mod player;
 mod projectile;
@@ -8,6 +9,7 @@ mod setup;
 
 pub use boundary::boundary_position_system;
 pub use collision::collision;
+pub use handle_death::handle_death;
 pub use movement::follow;
 pub use movement::tracking;
 pub use movement::update_movement;
