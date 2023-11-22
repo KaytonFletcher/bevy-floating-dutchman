@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     components::{
-        Damage, EnemyBuilder, Follow, Health, Motion, Player, ProjectileBundle, Track, Weapon,
+        Damage, EnemyBuilder, Follow, Motion, Player, ProjectileBundle, Track, Weapon,
     },
     labels::GameState,
     resources::SpriteAssets,

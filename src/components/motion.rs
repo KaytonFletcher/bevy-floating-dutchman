@@ -1,4 +1,4 @@
-use bevy::prelude::{Component, Quat, Vec2};
+use bevy::prelude::{Component, Quat};
 
 #[derive(Clone, Component)]
 pub struct Motion {

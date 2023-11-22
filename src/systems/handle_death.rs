@@ -7,11 +7,11 @@ pub fn handle_death(
     mut entities_killed: EventReader<EntityKilled>,
     mut players_killed: EventReader<PlayerKilled>,
 ) {
-    for EntityKilled(e1) in entities_killed.iter() {
+    for EntityKilled(e1) in entities_killed.read() {
         commands.entity(*e1).despawn();
     }
 
-    for PlayerKilled(player) in players_killed.iter() {
+    for PlayerKilled(player) in players_killed.read() {
         commands.entity(*player).despawn();
     }
 }

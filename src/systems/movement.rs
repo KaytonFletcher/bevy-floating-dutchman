@@ -1,4 +1,4 @@
-use std::f32::consts::{E, PI};
+use std::f32::consts::PI;
 
 use bevy::prelude::*;
 
@@ -52,7 +52,7 @@ pub fn update_movement(
         let direction = rotation_matrix.x_axis.truncate().normalize();
 
         external_force.force = if motion.is_moving {
-            direction * motion.acceleration * mass_properties.0.mass
+            direction * motion.acceleration * mass_properties.get().mass
         } else {
             Vec2::ZERO
         };

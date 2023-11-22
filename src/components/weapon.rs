@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use super::{Damage, Health, Motion};
+use super::{Damage, Health};
 
 #[derive(Component)]
 pub struct Weapon {

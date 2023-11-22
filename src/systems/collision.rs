@@ -17,7 +17,7 @@ pub fn collision(
 ) {
     let player = player_query.get_single_mut().unwrap();
 
-    for collision_event in collision_event_reader.iter() {
+    for collision_event in collision_event_reader.read() {
         match collision_event {
             CollisionEvent::Started(e1, e2, _flag) => {
                 // If e1 has health and e2 deals damage, apply e2 damage to e1 health
@@ -45,7 +45,7 @@ pub fn collision(
         }
     }
 
-    for _contact_event in contact_event_reader.iter() {}
+    for _contact_event in contact_event_reader.read() {}
 }
 
 fn dealt_damage_and_is_dead(
