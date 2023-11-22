@@ -10,7 +10,7 @@ use bevy::{prelude::*, window::PrimaryWindow};
 pub fn player_input(
     mut player_query: Query<(&mut Track, &mut Motion, &Weapon, Entity), With<Player>>,
     mut weapon_fired: EventWriter<WeaponFired>,
-    camera_query: Query<(&Camera, &Transform), With<MainCamera>>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     keyboard_input: Res<Input<KeyCode>>,
     buttons: Res<Input<MouseButton>>,
     // need to get window dimensions for mouse position
@@ -53,27 +53,14 @@ pub fn player_input(
         // };
 
         let wnd = windows.get_single().unwrap();
-
-        // has a new mouse event occured
-        if let Some(screen_pos) = wnd.cursor_position() {
-            // get the size of the window
-            let size = Vec2::new(wnd.width() as f32, wnd.height() as f32);
-            // convert screen position [0..resolution] to ndc [-1..1] (gpu coordinates)
-            let ndc = (screen_pos / size) * 2.0 - Vec2::ONE;
-
-            // matrix for undoing the projection and camera transform
-            let ndc_to_world =
-                camera_transform.compute_matrix() * camera.projection_matrix().inverse();
-
-            // use it to convert ndc to world-space coordinates
-            let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
-
-            // reduce it to a 2D value and update the position
-            // the player is tracking (rotating towards mouse pos)
-            let world_pos: Vec2 = world_pos.truncate();
-            if !world_pos.is_nan() && world_pos != Vec2::ZERO {
-                track_mouse.pos = world_pos;
-            }
+        
+        // check if the cursor is inside the window and get its position
+        // then, ask bevy to convert into world coordinates, and truncate to discard Z
+        if let Some(world_position) = wnd.cursor_position()
+            .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+            .map(|ray| ray.origin.truncate())
+        {
+            track_mouse.pos = world_position;
         }
 
         if buttons.pressed(MouseButton::Left) {
