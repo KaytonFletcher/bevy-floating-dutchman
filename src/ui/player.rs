@@ -6,11 +6,16 @@ use crate::{
     resources::UIAssets,
 };
 
+use std::fmt::Write;
+
 #[derive(Component)]
 pub struct Heart {
     id: f32,
     half: bool,
 }
+
+#[derive(Component)]
+pub struct ScoreUI;
 
 pub fn spawn_player_ui(
     mut commands: Commands,
@@ -31,6 +36,22 @@ pub fn spawn_player_ui(
             ..Default::default()
         })
         .with_children(|parent| {
+            parent.spawn(
+                TextBundle::from_section(
+                    "0",
+                    TextStyle {
+                        font_size: 100.0,
+                        ..default()
+                    },
+                )
+                .with_style(Style {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(600.0),
+                    top: Val::Px(10.0),
+                    ..default()
+                }),
+            ).insert(ScoreUI);
+
             for i in 0..num_hearts {
                 let left = Val::Px((80.0 * (i as f32)) + 10.0);
                 let top = Val::Px(10.0);
@@ -100,9 +121,11 @@ pub fn spawn_player_ui(
 
 pub fn update_player_ui(
     mut hearts: Query<(&mut Visibility, &Heart)>,
-    player_query: Query<&Health, (With<Player>, Changed<Health>)>,
+    mut scores: Query<&mut Text, With<ScoreUI>>,
+    player_query: Query<(&Health, &Player), Or<(Changed<Health>, Changed<Player>)>>,
+
 ) {
-    for health in player_query.iter() {
+    for (health, player) in player_query.iter() {
         for (mut visible, heart) in hearts.iter_mut() {
             // all half and full hearts exist in the world and this logic determines which get drawn
             // at most one half heart of the players health will be visible (the last half)
@@ -115,5 +138,11 @@ pub fn update_player_ui(
                 Visibility::Hidden
             }
         }
+
+        for mut text in scores.iter_mut() {
+            let score = player.score;
+            text.sections[0].value = format!("{score}");
+        }
+
     }
 }

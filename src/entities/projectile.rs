@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::components::Weapon;
+use crate::components::{Scorer, Weapon};
 
 pub fn spawn_projectile(
     commands: &mut Commands,
     transform: &Transform,
     weapon: &Weapon,
     ang_offset: f32,
+    player_entity: Option<Entity>,
 ) {
     let mut new_pb = weapon.projectile.clone();
 
@@ -26,8 +27,6 @@ pub fn spawn_projectile(
     // location and direction to fire a projectile, relative to the transform provided
     new_pb.sprite.transform.translation = transform.translation + start_pos_offset;
 
-    println!("Projectile angle: {}", angle);
-
     let mut entity_builder = commands.spawn(new_pb);
 
     entity_builder
@@ -39,4 +38,8 @@ pub fn spawn_projectile(
             angvel: 0.0,
             linvel: direction.truncate() * 600.0,
         });
+
+    if let Some(e1) = player_entity {
+        entity_builder.insert(Scorer { player: e1 });
+    }
 }

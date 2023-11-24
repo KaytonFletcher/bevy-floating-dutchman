@@ -4,7 +4,7 @@ use crate::{
     events::WeaponFired,
 };
 use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, Query, Res, Time, Transform, Without,
+    Commands, Entity, EventReader, EventWriter, Query, Res, Time, Transform, With, Without,
 };
 
 pub fn weapon_fire_rate(mut weapon_query: Query<&mut Weapon>, time: Res<Time>) {
@@ -28,11 +28,18 @@ pub fn constant_weapon_fire(
 pub fn weapon_fired(
     mut commands: Commands,
     mut query: Query<(&mut Weapon, &Track, &Transform)>,
+    player_query: Query<Entity, With<Player>>,
     mut weapons_fired: EventReader<WeaponFired>,
 ) {
-    for WeaponFired(entity) in weapons_fired.iter() {
+    for WeaponFired(entity) in weapons_fired.read() {
         if let Ok((mut weapon, track, transform)) = query.get_mut(*entity) {
-            spawn_projectile(&mut commands, &transform, &weapon, track.get_offset());
+            spawn_projectile(
+                &mut commands,
+                &transform,
+                &weapon,
+                track.get_offset(),
+                player_query.get(*entity).ok(),
+            );
             weapon.fire_rate.reset();
         }
     }

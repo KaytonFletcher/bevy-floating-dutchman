@@ -4,7 +4,7 @@ use bevy_rapier2d::{
     plugin::RapierPhysicsPlugin, prelude::NoUserData, render::RapierDebugRenderPlugin,
 };
 
-use events::{WeaponFired, PlayerKilled, EntityKilled};
+use events::{EntityKilled, PlayerKilled, WeaponFired};
 use labels::{GamePlaySet, GameState, MainSet};
 use plugins::AssetLoadingPlugin;
 
@@ -77,6 +77,7 @@ fn main() {
                 systems::boundary_position_system,
                 systems::despawn_projectile,
                 systems::handle_death,
+                systems::add_score,
                 ui::update_player_ui,
             )
                 .after(GamePlaySet::Input),

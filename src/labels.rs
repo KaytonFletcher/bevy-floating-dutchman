@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
 pub enum MainSet {
-    MainMenu,
     GamePlay,
 }
 

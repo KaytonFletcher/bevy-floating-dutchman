@@ -8,15 +8,13 @@ use crate::{
 
 pub fn collision(
     mut damaged_query: Query<&mut Health>,
-    mut player_query: Query<Entity, With<Player>>,
+    player_query: Query<Entity, With<Player>>,
     damager_query: Query<&Damage>,
     mut collision_event_reader: EventReader<CollisionEvent>,
     mut contact_event_reader: EventReader<ContactForceEvent>,
     mut entity_killed_event_writer: EventWriter<EntityKilled>,
     mut player_killed_event_writer: EventWriter<PlayerKilled>,
 ) {
-    let player = player_query.get_single_mut().unwrap();
-
     for collision_event in collision_event_reader.read() {
         match collision_event {
             CollisionEvent::Started(e1, e2, _flag) => {
@@ -26,7 +24,8 @@ pub fn collision(
                         &mut entity_killed_event_writer,
                         &mut player_killed_event_writer,
                         *e1,
-                        player,
+                        *e2,
+                        player_query.contains(*e1),
                     )
                 }
 
@@ -36,7 +35,8 @@ pub fn collision(
                         &mut entity_killed_event_writer,
                         &mut player_killed_event_writer,
                         *e2,
-                        player,
+                        *e1,
+                        player_query.contains(*e2),
                     )
                 }
             }
@@ -67,11 +67,12 @@ fn publish_entity_killed(
     entity_killed_event_writer: &mut EventWriter<EntityKilled>,
     player_killed_event_writer: &mut EventWriter<PlayerKilled>,
     entity_killed: Entity,
-    player: Entity,
+    entity_killing: Entity,
+    is_player: bool,
 ) {
-    if entity_killed == player {
-        player_killed_event_writer.send(PlayerKilled(player))
+    if is_player {
+        player_killed_event_writer.send(PlayerKilled(entity_killed))
     } else {
-        entity_killed_event_writer.send(EntityKilled(entity_killed))
+        entity_killed_event_writer.send(EntityKilled(entity_killed, entity_killing))
     }
 }

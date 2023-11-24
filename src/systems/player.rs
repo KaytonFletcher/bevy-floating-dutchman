@@ -36,10 +36,6 @@ pub fn player_input(
         }
 
         motion.direction = Quat::from_rotation_arc_2d(Vec2::X, direction.normalize_or_zero());
-
-        // println!("Vec2 direction: {}", direction);
-        // println!("Quat direction: {}", motion.direction);
-
         motion.is_moving = direction != Vec2::ZERO;
 
         // assumes only one camera has been given the MainCamera component
@@ -53,10 +49,11 @@ pub fn player_input(
         // };
 
         let wnd = windows.get_single().unwrap();
-        
+
         // check if the cursor is inside the window and get its position
         // then, ask bevy to convert into world coordinates, and truncate to discard Z
-        if let Some(world_position) = wnd.cursor_position()
+        if let Some(world_position) = wnd
+            .cursor_position()
             .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
             .map(|ray| ray.origin.truncate())
         {
@@ -66,7 +63,6 @@ pub fn player_input(
         if buttons.pressed(MouseButton::Left) {
             // Left mouse button was pressed
             if weapon.fire_rate.finished() {
-                println!("Weapon Fired");
                 // hasn't been too quick since last press
                 weapon_fired.send(WeaponFired(entity));
             }

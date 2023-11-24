@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     components::Motion,
-    components::{Damage, Health, Player, ProjectileBundle, Track, Weapon},
+    components::{Damage, Health, Player, ProjectileBundle, Scorer, Track, Weapon},
     resources::SpriteAssets,
 };
 
@@ -36,6 +36,8 @@ pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
 
     let mut player_builder = commands.spawn_empty();
 
+    let player_entity = player_builder.id();
+
     player_builder
         .insert(SpriteBundle {
             transform: Transform {
@@ -50,6 +52,9 @@ pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
         .insert(Health::new(4.0))
         .insert(Track::new(ROTATE_ACCEL, SPRITE_OFFSET))
         .insert(Damage { amount: 4.0 })
+        .insert(Scorer {
+            player: player_entity,
+        })
         .insert(Motion {
             acceleration: ACCEL,
             max_vel: SPEED,

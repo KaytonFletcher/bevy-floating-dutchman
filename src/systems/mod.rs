@@ -9,6 +9,7 @@ mod setup;
 
 pub use boundary::boundary_position_system;
 pub use collision::collision;
+pub use handle_death::add_score;
 pub use handle_death::handle_death;
 pub use movement::follow;
 pub use movement::tracking;

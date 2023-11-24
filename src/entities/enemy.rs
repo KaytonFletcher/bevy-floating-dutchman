@@ -4,9 +4,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::{
-        Damage, EnemyBuilder, Follow, Motion, Player, ProjectileBundle, Track, Weapon,
-    },
+    components::{Damage, EnemyBuilder, Follow, Motion, Player, ProjectileBundle, Track, Weapon},
     labels::GameState,
     resources::SpriteAssets,
 };
@@ -52,6 +50,7 @@ pub fn spawn_follow_enemy(
                 acceleration: ENEMT_ACCEL,
                 ..Default::default()
             })
+            .with_score(10)
             .build(),
         );
 
@@ -105,13 +104,19 @@ pub fn spawn_shoot_enemy(
         .insert(Damage { amount: 0.5 })
         .insert(enemy_weapon)
         .insert(
-            EnemyBuilder::new(ENEMY_SIZE, 2.5, START_POS, sprites.shoot_enemy.clone())
-                .with_health(2.0)
-                .with_motion(Motion {
-                    max_vel: ENEMY_SPEED,
-                    acceleration: ENEMT_ACCEL,
-                    ..Default::default()
-                })
-                .build(),
+            EnemyBuilder::new(
+                ENEMY_SIZE,
+                ENEMY_SCALE,
+                START_POS,
+                sprites.shoot_enemy.clone(),
+            )
+            .with_health(2.0)
+            .with_motion(Motion {
+                max_vel: ENEMY_SPEED,
+                acceleration: ENEMT_ACCEL,
+                ..Default::default()
+            })
+            .with_score(20)
+            .build(),
         );
 }

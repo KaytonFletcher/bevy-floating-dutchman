@@ -31,12 +31,6 @@ impl Health {
 
     // returns true if the damage applied takes health to zero
     pub fn damage(&mut self, amount: f32) -> bool {
-        println!(
-            "Entity damaged by: [{}], current health: [{}], new health: [{}]",
-            amount,
-            self.current_health,
-            self.current_health - amount
-        );
         self.current_health -= amount;
         if self.current_health <= 0.0 {
             self.current_health = 0.0;
