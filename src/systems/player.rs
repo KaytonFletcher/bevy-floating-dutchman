@@ -41,13 +41,6 @@ pub fn player_input(
         // assumes only one camera has been given the MainCamera component
         let (camera, camera_transform) = camera_query.single();
 
-        // get the window that the camera is displaying to (or the primary window)
-        // let wnd = if let RenderTarget::Window(id) = camera.target {
-        //     windows.get(id).unwrap()
-        // } else {
-        //     windows.get_single().unwrap()
-        // };
-
         let wnd = windows.get_single().unwrap();
 
         // check if the cursor is inside the window and get its position

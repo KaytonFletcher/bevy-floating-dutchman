@@ -7,25 +7,31 @@ use bevy::prelude::{
     Commands, Entity, EventReader, EventWriter, Query, Res, Time, Transform, With, Without,
 };
 
-pub fn weapon_fire_rate(mut weapon_query: Query<&mut Weapon>, time: Res<Time>) {
+pub fn tick_weapon_fire_rate(mut weapon_query: Query<&mut Weapon>, time: Res<Time>) {
     for mut weapon in weapon_query.iter_mut() {
         weapon.fire_rate.tick(time.delta());
     }
 }
 
-pub fn constant_weapon_fire(
+/**
+ * Certain enemies will rely on this system to fire their weapon constantly
+ */
+pub fn fire_weapon_constantly(
     mut query: Query<(&mut Weapon, Entity), Without<Player>>,
     mut weapons_fired: EventWriter<WeaponFired>,
 ) {
     for (weapon, entity) in query.iter_mut() {
         if weapon.fire_rate.finished() {
-            // hasn't been too quick since last press
+            // always fire at steady fire rate
             weapons_fired.send(WeaponFired(entity));
         }
     }
 }
 
-pub fn weapon_fired(
+/**
+ * Processes WeaponFired event stream, spawning projectiles for each weapon in world space that has been fired
+ */
+pub fn spawn_projectiles_from_weapons_fired(
     mut commands: Commands,
     mut query: Query<(&mut Weapon, &Track, &Transform)>,
     player_query: Query<Entity, With<Player>>,
@@ -45,7 +51,10 @@ pub fn weapon_fired(
     }
 }
 
-pub fn despawn_projectile(
+/**
+ * For each projectile in world space, we check if time to live has expired and then despawn it
+ */
+pub fn despawn_projectiles(
     mut commands: Commands,
     time: Res<Time>,
     mut query: Query<(Entity, &mut Projectile)>,

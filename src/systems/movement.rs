@@ -9,10 +9,14 @@ use crate::{
     components::{Follow, Player, Track},
 };
 
-// Runs when the Track component is modified, applying angular velocity to the entity in the direction of the
-// entity being tracked
-pub fn update_tracking(mut query: Query<(&Track, &mut Transform, &mut ExternalForce)>) {
-    for (track, mut transform, mut force) in query.iter_mut() {
+/**
+ * Runs when the Track component is modified. Currently this just changes the entities transform to point
+ * the entity marked on the Track component using Trigonometry. In the future we may want to use &mut ExternalForce
+ * to apply a more "weighty" rotational feel rather than snapping to where the entity should look.
+ * Move this to "Physics" GamePlay set if we decide to use forces here.
+ */
+pub fn update_tracking(mut query: Query<(&Track, &mut Transform)>) {
+    for (track, mut transform) in query.iter_mut() {
         // angle between entity (rigid body) being tracked and the entity given the Track component
         let new_angle = (track.pos.y - transform.translation.y)
             .atan2(track.pos.x - transform.translation.x)

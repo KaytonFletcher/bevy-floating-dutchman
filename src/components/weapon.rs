@@ -5,6 +5,7 @@ use super::{Damage, Health};
 
 #[derive(Component)]
 pub struct Weapon {
+    pub should_fire: bool,
     pub fire_rate: Timer,
     pub spread: f32,
     pub pos_offset: f32,
@@ -14,6 +15,7 @@ pub struct Weapon {
 impl Default for Weapon {
     fn default() -> Self {
         Weapon {
+            should_fire: false,
             fire_rate: Timer::from_seconds(0.4, TimerMode::Once),
             spread: 0.0,
             pos_offset: 0.0,

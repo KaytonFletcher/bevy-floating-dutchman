@@ -6,8 +6,6 @@ use crate::{
     resources::UIAssets,
 };
 
-use std::fmt::Write;
-
 #[derive(Component)]
 pub struct Heart {
     id: f32,
@@ -36,21 +34,23 @@ pub fn spawn_player_ui(
             ..Default::default()
         })
         .with_children(|parent| {
-            parent.spawn(
-                TextBundle::from_section(
-                    "0",
-                    TextStyle {
-                        font_size: 100.0,
+            parent
+                .spawn(
+                    TextBundle::from_section(
+                        "0",
+                        TextStyle {
+                            font_size: 100.0,
+                            ..default()
+                        },
+                    )
+                    .with_style(Style {
+                        position_type: PositionType::Absolute,
+                        left: Val::Px(600.0),
+                        top: Val::Px(10.0),
                         ..default()
-                    },
+                    }),
                 )
-                .with_style(Style {
-                    position_type: PositionType::Absolute,
-                    left: Val::Px(600.0),
-                    top: Val::Px(10.0),
-                    ..default()
-                }),
-            ).insert(ScoreUI);
+                .insert(ScoreUI);
 
             for i in 0..num_hearts {
                 let left = Val::Px((80.0 * (i as f32)) + 10.0);
@@ -123,7 +123,6 @@ pub fn update_player_ui(
     mut hearts: Query<(&mut Visibility, &Heart)>,
     mut scores: Query<&mut Text, With<ScoreUI>>,
     player_query: Query<(&Health, &Player), Or<(Changed<Health>, Changed<Player>)>>,
-
 ) {
     for (health, player) in player_query.iter() {
         for (mut visible, heart) in hearts.iter_mut() {
@@ -143,6 +142,5 @@ pub fn update_player_ui(
             let score = player.score;
             text.sections[0].value = format!("{score}");
         }
-
     }
 }

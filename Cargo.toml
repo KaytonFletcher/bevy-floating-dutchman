@@ -13,7 +13,7 @@ resolver = "2" #
 bevy = { version = "0.12.0" }
 bevy_rapier2d = "0.23.0"
 bevy_asset_loader = "0.18" 
-nalgebra = { version = "0.25", features = [ "convert-glam" ] }
+nalgebra = { version = "0.32" }
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

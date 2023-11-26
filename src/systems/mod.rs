@@ -4,8 +4,10 @@ pub mod debug;
 mod handle_death;
 mod movement;
 mod player;
-mod projectile;
+pub mod projectile;
 mod setup;
+
+pub mod ui;
 
 pub use boundary::boundary_position_system;
 pub use collision::collision;
@@ -16,9 +18,5 @@ pub use movement::tracking;
 pub use movement::update_movement;
 pub use movement::update_tracking;
 pub use player::player_input;
-pub use projectile::constant_weapon_fire;
-pub use projectile::despawn_projectile;
-pub use projectile::weapon_fire_rate;
-pub use projectile::weapon_fired;
 pub use setup::setup;
 pub use setup::MainCamera;

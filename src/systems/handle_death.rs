@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, Entity, EventReader, Query, With};
+use bevy::prelude::{Commands, EventReader, Query};
 
 use crate::{
     components::{Player, Score, Scorer},
