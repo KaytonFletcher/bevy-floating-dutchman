@@ -16,8 +16,7 @@ impl Plugin for PlayerInputPlugin {
             (systems::player_input)
                 .in_set(MainSet::GamePlay)
                 .in_set(GamePlaySet::Input)
-                .after(LoadingStateSet(GameState::AssetLoading)) // appease the system ordering gods
-                .before(GamePlaySet::Simulation),
+                .after(LoadingStateSet(GameState::AssetLoading)), // appease the system ordering gods
         );
     }
 }

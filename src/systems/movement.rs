@@ -15,7 +15,7 @@ use crate::{
  * to apply a more "weighty" rotational feel rather than snapping to where the entity should look.
  * Move this to "Physics" GamePlay set if we decide to use forces here.
  */
-pub fn update_tracking(mut query: Query<(&Track, &mut Transform)>) {
+pub fn update_rotation_based_on_tracking(mut query: Query<(&Track, &mut Transform)>) {
     for (track, mut transform) in query.iter_mut() {
         // angle between entity (rigid body) being tracked and the entity given the Track component
         let new_angle = (track.pos.y - transform.translation.y)
@@ -26,7 +26,7 @@ pub fn update_tracking(mut query: Query<(&Track, &mut Transform)>) {
     }
 }
 
-pub fn tracking(
+pub fn update_position_of_entity_tracked(
     mut trackers: Query<&mut Track, Without<Player>>,
     rb_query: Query<&Transform, With<RigidBody>>,
 ) {
