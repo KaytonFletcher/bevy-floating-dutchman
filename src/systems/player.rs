@@ -2,12 +2,12 @@ use crate::{
     components::Motion,
     components::{Player, Track, Weapon},
     events::WeaponFired,
-    systems::MainCamera,
+    systems::setup::MainCamera,
 };
 
 use bevy::{prelude::*, window::PrimaryWindow};
 
-pub fn player_input(
+pub fn get_player_ship_input(
     mut player_query: Query<(&mut Track, &mut Motion, &Weapon, Entity), With<Player>>,
     mut weapon_fired: EventWriter<WeaponFired>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,

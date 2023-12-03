@@ -1,21 +1,15 @@
 use bevy::prelude::*;
 
-use crate::{
-    labels::{GamePlaySet, MainSet},
-    systems,
-};
+use crate::{labels::GamePlaySet, systems::movement};
 
 pub struct PhysicsPlugin;
 
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
-        // physiscs sytems run in parallel after "simulation" steps in CoreSet::PostUpdate
+        // physiscs sytems run in parallel after "simulation" steps, all in Update core schedule
         app.add_systems(
             Update,
-            (systems::update_movement)
-                .in_set(MainSet::GamePlay)
-                .in_set(GamePlaySet::Physics)
-                .after(GamePlaySet::Simulation),
+            (movement::apply_forces).in_set(GamePlaySet::Physics),
         );
     }
 }

@@ -3,7 +3,10 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier2d::prelude::{RigidBody, Velocity};
 
 pub fn boundary_position_system(
-    mut query: Query<(&mut Transform, &Velocity), With<RigidBody>>,
+    mut query: Query<
+        (&mut Transform, &Velocity),
+        (With<RigidBody>, Or<(Changed<Transform>, Changed<Velocity>)>),
+    >,
     windows: Query<&Window, With<PrimaryWindow>>,
 ) {
     for (mut transform, velocity) in &mut query.iter_mut() {

@@ -1,25 +1,11 @@
-use bevy::prelude::{Commands, EventReader, Query};
+use bevy::prelude::*;
 
 use crate::{
     components::{Player, Score, Scorer},
-    events::{EntityKilled, PlayerKilled},
+    events::EntityKilled,
 };
 
-pub fn handle_death(
-    mut commands: Commands,
-    mut entities_killed: EventReader<EntityKilled>,
-    mut players_killed: EventReader<PlayerKilled>,
-) {
-    for EntityKilled(e1, _) in entities_killed.read() {
-        commands.entity(*e1).despawn();
-    }
-
-    for PlayerKilled(player) in players_killed.read() {
-        commands.entity(*player).despawn();
-    }
-}
-
-pub fn add_score(
+pub fn add_scores_from_killed(
     mut player_query: Query<&mut Player>,
     score_query: Query<&Score>,
     scorer_query: Query<&Scorer>,

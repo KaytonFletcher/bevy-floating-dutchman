@@ -6,7 +6,7 @@ use crate::{
     events::{EntityKilled, PlayerKilled},
 };
 
-pub fn collision(
+pub fn handle_collisions(
     mut damaged_query: Query<&mut Health>,
     player_query: Query<Entity, With<Player>>,
     damager_query: Query<&Damage>,

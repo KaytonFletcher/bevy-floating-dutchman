@@ -15,7 +15,9 @@ use crate::{
  * to apply a more "weighty" rotational feel rather than snapping to where the entity should look.
  * Move this to "Physics" GamePlay set if we decide to use forces here.
  */
-pub fn update_rotation_based_on_tracking(mut query: Query<(&Track, &mut Transform)>) {
+pub fn update_rotation_based_on_tracking(
+    mut query: Query<(&Track, &mut Transform), Changed<Track>>,
+) {
     for (track, mut transform) in query.iter_mut() {
         // angle between entity (rigid body) being tracked and the entity given the Track component
         let new_angle = (track.pos.y - transform.translation.y)
@@ -28,7 +30,7 @@ pub fn update_rotation_based_on_tracking(mut query: Query<(&Track, &mut Transfor
 
 pub fn update_position_of_entity_tracked(
     mut trackers: Query<&mut Track, Without<Player>>,
-    rb_query: Query<&Transform, With<RigidBody>>,
+    rb_query: Query<&Transform, (With<RigidBody>, Changed<Transform>)>,
 ) {
     for mut track in trackers.iter_mut() {
         if let Some(entity) = &track.entity_tracked {
@@ -42,13 +44,16 @@ pub fn update_position_of_entity_tracked(
 
 // Runs when the Motion component is modified, applying linear force to the entity in the direction
 // specified by the Motion component
-pub fn update_movement(
-    mut query: Query<(
-        &Motion,
-        &ReadMassProperties,
-        &mut ExternalForce,
-        &mut Velocity,
-    )>,
+pub fn apply_forces(
+    mut query: Query<
+        (
+            &Motion,
+            &ReadMassProperties,
+            &mut ExternalForce,
+            &mut Velocity,
+        ),
+        Changed<Motion>,
+    >,
 ) {
     for (motion, mass_properties, mut external_force, mut velocity) in query.iter_mut() {
         let rotation_matrix = Mat3::from_quat(motion.direction);
@@ -89,7 +94,6 @@ pub fn follow(
             let mut new_angle = (new_follow_pos.y).atan2(new_follow_pos.x);
 
             if let Some(space) = follow.space {
-                // motion.is_moving = new_follow_pos.length() >= space;
                 if new_follow_pos.length() < space {
                     new_angle = new_angle + PI;
                 }

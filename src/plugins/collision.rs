@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     labels::{GamePlaySet, MainSet},
-    systems,
+    systems::collision,
 };
 
 pub struct CollisionPlugin;
@@ -12,7 +12,7 @@ impl Plugin for CollisionPlugin {
         // apply collision detection last, after all translations to entities have completed
         app.add_systems(
             Update,
-            (systems::collision)
+            (collision::handle_collisions)
                 .in_set(MainSet::GamePlay)
                 .in_set(GamePlaySet::Collision),
         );

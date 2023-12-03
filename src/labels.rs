@@ -13,18 +13,6 @@ pub enum GamePlaySet {
     Collision,  // Finally detect collisions using rapier based on forces applied
 }
 
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-pub enum GamePlaySubSets {
-    PlayerUpdate,
-    TrackingUpdate,
-    TransformUpdate,
-}
-
-#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
-pub enum SystemLabels {
-    AddPlayerScore,
-}
-
 #[derive(States, Clone, Eq, PartialEq, Default, Debug, Hash)]
 pub enum GameState {
     #[default]

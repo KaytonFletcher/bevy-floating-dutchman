@@ -9,8 +9,10 @@ use bevy_rapier2d::{
 };
 
 use events::{EntityKilled, PlayerKilled, WeaponFired};
-use labels::{GameState, MainSet};
+use labels::GameState;
 use plugins::{AssetLoadingPlugin, MainShipGameplayPlugin};
+
+use crate::systems::{setup, ui};
 
 mod components;
 mod entities;
@@ -49,9 +51,9 @@ fn main() {
     .add_systems(
         OnEnter(GameState::SpawnPlayer),
         (
-            systems::setup,
+            setup::setup_basic_config,
             entities::spawn_player,
-            systems::ui::spawn_player_ui,
+            ui::spawn_player_ui,
         )
             .chain(),
     )
