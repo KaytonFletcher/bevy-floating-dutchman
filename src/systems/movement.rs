@@ -1,13 +1,8 @@
-use std::f32::consts::PI;
-
 use bevy::prelude::*;
 
 use bevy_rapier2d::prelude::{ExternalForce, ReadMassProperties, RigidBody, Velocity};
 
-use crate::{
-    components::Motion,
-    components::{Follow, Player, Track},
-};
+use crate::components::{Follow, Motion, Player, Track};
 
 /**
  * Runs when the Track component is modified. Currently this just changes the entities transform to point
@@ -56,12 +51,8 @@ pub fn apply_forces(
     >,
 ) {
     for (motion, mass_properties, mut external_force, mut velocity) in query.iter_mut() {
-        let rotation_matrix = Mat3::from_quat(motion.direction);
-
-        let direction = rotation_matrix.x_axis.truncate().normalize();
-
         external_force.force = if motion.is_moving {
-            direction * motion.acceleration * mass_properties.get().mass
+            motion.get_direction_as_vec2() * motion.acceleration * mass_properties.get().mass
         } else {
             Vec2::ZERO
         };
@@ -79,27 +70,8 @@ pub fn follow(
 ) {
     for (mut motion, follow, follower_transform) in followers.iter_mut() {
         if let Ok(followed_transform) = rb_query.get(follow.entity) {
-            let follower_pos = follower_transform.translation;
-            let being_followed_pos = followed_transform.translation;
-
-            // we calculate the x and y translation between the entity being followed
-            // and the entity following. This ensures the follower will move in the direction
-            // of the entity (Rigid body component) being followed
-            let x = being_followed_pos.x - follower_pos.x;
-            let y = being_followed_pos.y - follower_pos.y;
-
-            let new_follow_pos = Vec2::new(x, y);
-
-            // angle between entity (rigid body) being tracked and the entity given the Track component
-            let mut new_angle = (new_follow_pos.y).atan2(new_follow_pos.x);
-
-            if let Some(space) = follow.space {
-                if new_follow_pos.length() < space {
-                    new_angle = new_angle + PI;
-                }
-            }
-
-            motion.direction = Quat::from_rotation_z(new_angle);
+            motion.direction =
+                follow.get_new_angle_to_follow(follower_transform, followed_transform);
         }
     }
 }

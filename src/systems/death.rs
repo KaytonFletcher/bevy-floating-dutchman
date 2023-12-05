@@ -9,6 +9,7 @@ pub fn handle_death(
     entities: Query<Entity>,
 ) {
     for EntityKilled(e1, _) in entities_killed.read() {
+        info!("Entity Killed {:?}", e1);
         // Some entities may be destroyed by other means
         // Ex. This could have a race condition with Projectile TTL
         if entities.contains(*e1) {

@@ -3,9 +3,8 @@ use crate::{
     entities::spawn_projectile,
     events::WeaponFired,
 };
-use bevy::prelude::{
-    Commands, Entity, EventReader, EventWriter, Query, Res, Time, Transform, With, Without,
-};
+
+use bevy::prelude::*;
 
 pub fn tick_weapon_fire_rate(mut weapon_query: Query<&mut Weapon>, time: Res<Time>) {
     for mut weapon in weapon_query.iter_mut() {
@@ -62,6 +61,7 @@ pub fn despawn_projectiles(
     for (entity, mut projectile) in query.iter_mut() {
         projectile.time_to_live.tick(time.delta());
         if projectile.time_to_live.finished() {
+            info!("Projectile Killed {:?}", entity);
             commands.entity(entity).despawn();
         }
     }
