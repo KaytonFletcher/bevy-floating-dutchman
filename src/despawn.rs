@@ -1,8 +1,19 @@
 use bevy::prelude::*;
 
-use crate::events::{EntityKilled, PlayerKilled};
+use crate::labels::{
+    events::{EntityKilled, PlayerKilled},
+    sets::GamePlaySet,
+};
 
-pub fn handle_death(
+pub struct DespawnPlugin;
+
+impl Plugin for DespawnPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, handle_death.in_set(GamePlaySet::DespawnEntities));
+    }
+}
+
+fn handle_death(
     mut commands: Commands,
     mut entities_killed: EventReader<EntityKilled>,
     mut players_killed: EventReader<PlayerKilled>,

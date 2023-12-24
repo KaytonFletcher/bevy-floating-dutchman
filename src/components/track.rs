@@ -18,8 +18,9 @@ impl Track {
         }
     }
 
-    pub fn with_entity(&mut self, entity: Entity) {
+    pub fn with_entity(mut self, entity: Entity) -> Track {
         self.entity_tracked = Some(entity);
+        self
     }
 
     pub fn get_offset(&self) -> f32 {

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, Score, Scorer},
-    events::EntityKilled,
+    labels::events::EntityKilled,
 };
 
 pub fn add_scores_from_killed(

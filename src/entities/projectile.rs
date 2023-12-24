@@ -42,4 +42,6 @@ pub fn spawn_projectile(
     if let Some(e1) = player_entity {
         entity_builder.insert(Scorer { player: e1 });
     }
+
+    info!("Spawning Projectile: {:?}", entity_builder.id())
 }

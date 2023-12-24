@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     components::{Damage, EnemyBuilder, Follow, Motion, Player, ProjectileBundle, Track, Weapon},
-    labels::GameState,
+    labels::states::GameState,
     resources::SpriteAssets,
 };
 
@@ -24,13 +24,10 @@ pub fn spawn_follow_enemy(
 
     let player_id = player_query.single();
 
-    let mut tracker = Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0);
-    tracker.with_entity(player_id);
-
     let mut enemy_builder = commands.spawn_empty();
 
     enemy_builder
-        .insert(tracker)
+        .insert(Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0).with_entity(player_id))
         .insert(Follow::new(player_id))
         .insert(Damage { amount: 0.5 })
         .insert(Damping {
@@ -54,6 +51,7 @@ pub fn spawn_follow_enemy(
             .build(),
         );
 
+    info!("Follow Enemy Entity: {:?}", enemy_builder.id());
     game_state.set(GameState::Playing)
 }
 
@@ -72,9 +70,6 @@ pub fn spawn_shoot_enemy(
 
     let player_id = player_query.single();
 
-    let mut tracker = Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0);
-    tracker.with_entity(player_id);
-
     let enemy_weapon = Weapon {
         projectile: ProjectileBundle {
             sprite: SpriteBundle {
@@ -92,7 +87,7 @@ pub fn spawn_shoot_enemy(
     let mut enemy_builder = commands.spawn_empty();
 
     enemy_builder
-        .insert(tracker)
+        .insert(Track::new(ENEMY_ROTATE_ACCEL, -PI / 2.0).with_entity(player_id))
         .insert(Follow {
             entity: player_id,
             space: Some(700.0),
@@ -119,4 +114,6 @@ pub fn spawn_shoot_enemy(
             .with_score(20)
             .build(),
         );
+
+    info!("Follow Shoot Entity: {:?}", enemy_builder.id());
 }

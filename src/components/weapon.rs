@@ -27,12 +27,31 @@ impl Default for Weapon {
 #[derive(Clone, Component)]
 pub struct Projectile {
     pub time_to_live: Timer,
+    max_hits: i32,
+    current_hits: i32,
 }
 
 impl Default for Projectile {
     fn default() -> Self {
         Projectile {
             time_to_live: Timer::from_seconds(2.0, TimerMode::Once),
+            max_hits: 1,
+            current_hits: 0,
+        }
+    }
+}
+
+impl Projectile {
+    /**
+     * When a projectile collides we check to see if it has already
+     */
+    pub fn add_hit(&mut self) -> bool {
+        if self.current_hits == self.max_hits {
+            println!("TRIED TO GO FOR ANOTHER HIT");
+            return false;
+        } else {
+            self.current_hits = self.current_hits + 1;
+            return true;
         }
     }
 }

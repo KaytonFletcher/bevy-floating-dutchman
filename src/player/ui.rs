@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Health, Player},
-    labels::GameState,
+    labels::{states::GameState, ScoreUI},
     resources::UIAssets,
 };
 
@@ -11,9 +11,6 @@ pub struct Heart {
     id: f32,
     half: bool,
 }
-
-#[derive(Component)]
-pub struct ScoreUI;
 
 pub fn spawn_player_ui(
     mut commands: Commands,

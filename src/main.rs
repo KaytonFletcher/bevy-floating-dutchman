@@ -1,14 +1,20 @@
 use bevy::prelude::App;
+use resources::AssetLoadingPlugin;
+use schedule::SchedulePlugin;
+use setup::SetupPlugin;
 
-use plugins::{AssetLoadingPlugin, MainShipGameplayPlugin, SetupPlugin};
-
+mod collision;
 mod components;
+mod debug;
+mod despawn;
 mod entities;
-mod events;
 mod labels;
-mod plugins;
+mod movement;
+mod player;
 mod resources;
-mod systems;
+mod schedule;
+mod setup;
+mod weapon;
 
 fn main() {
     let mut app = App::new();
@@ -16,9 +22,16 @@ fn main() {
     app
         // First we load assets
         .add_plugins(AssetLoadingPlugin)
-        // Then we set up world
+        // Set up world: camera, physics settings, etc...
         .add_plugins(SetupPlugin)
-        // Then we run game
-        .add_plugins(MainShipGameplayPlugin)
+        // Configure schedule of game systems
+        .add_plugins(SchedulePlugin)
+        .add_plugins((
+            despawn::DespawnPlugin,
+            movement::MovementPlugin,
+            player::PlayerPlugin,
+            weapon::WeaponPlugin,
+            collision::CollisionPlugin,
+        ))
         .run();
 }

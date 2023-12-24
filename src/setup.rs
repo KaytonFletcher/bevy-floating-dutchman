@@ -1,18 +1,19 @@
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
     prelude::*,
-    window::WindowResolution,
+    render::view::window,
+    window::{PrimaryWindow, WindowResolution},
 };
 
-use bevy_rapier2d::{
-    plugin::RapierPhysicsPlugin, prelude::NoUserData, render::RapierDebugRenderPlugin,
-};
+use bevy_rapier2d::prelude::*;
 
 use crate::{
     entities,
-    events::{EntityKilled, PlayerKilled, WeaponFired},
-    labels::GameState,
-    systems::{setup, ui},
+    labels::{
+        events::{EntityKilled, PlayerKilled, WeaponFired},
+        states::GameState,
+        CursorCoordinates, MainCamera,
+    },
 };
 
 pub struct SetupPlugin;
@@ -46,17 +47,29 @@ impl Plugin for SetupPlugin {
         // one-time systems for setting up the world space
         // may be able to add these to startup schedule instead
         .add_systems(
-            OnEnter(GameState::SpawnPlayer),
-            (
-                setup::setup_basic_config,
-                entities::spawn_player,
-                ui::spawn_player_ui,
-            )
-                .chain(),
+            OnExit(GameState::AssetLoading),
+            (setup_camera, setup_rapier_physics, setup_cursor).chain(),
         )
         .add_systems(
             OnEnter(GameState::SpawnEnemies),
             (entities::spawn_shoot_enemy, entities::spawn_follow_enemy).chain(),
         );
     }
+}
+
+fn setup_camera(mut commands: Commands, mut rapier_config: ResMut<RapierConfiguration>) {
+    rapier_config.gravity = Vec2::ZERO.into();
+
+    commands.spawn(Camera2dBundle::default()).insert(MainCamera);
+}
+
+fn setup_rapier_physics(mut rapier_config: ResMut<RapierConfiguration>) {
+    // Disable gravity
+    rapier_config.gravity = Vec2::ZERO.into();
+}
+
+fn setup_cursor(mut commands: Commands) {
+    commands
+        .spawn(CursorCoordinates)
+        .insert(Transform::from_translation(Vec3::ZERO));
 }

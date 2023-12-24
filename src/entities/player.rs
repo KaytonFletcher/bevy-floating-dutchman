@@ -4,10 +4,15 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     components::Motion,
     components::{Damage, Health, Player, ProjectileBundle, Scorer, Track, Weapon},
+    labels::CursorCoordinates,
     resources::SpriteAssets,
 };
 
-pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
+pub fn spawn_player(
+    mut commands: Commands,
+    cursor_query: Query<Entity, With<CursorCoordinates>>,
+    sprites: Res<SpriteAssets>,
+) {
     const SCALE: f32 = 0.33;
     const SPRITE_DIM: f32 = 549.;
     const WIDTH: f32 = SPRITE_DIM - 350.;
@@ -23,20 +28,19 @@ pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
                 texture: sprites.cannonball.clone(),
                 ..Default::default()
             },
-            // motion: Motion {
-            //     acceleration: 200.0,
-            //     max_vel: 40.0,
-            //     ..Default::default()
-            // },
             ..Default::default()
         },
         pos_offset: 100.0,
         ..Default::default()
     };
 
+    let cursor_coord_entity = cursor_query.single();
+
     let mut player_builder = commands.spawn_empty();
 
     let player_entity = player_builder.id();
+
+    info!("Player Entity: {:?}", player_entity);
 
     player_builder
         .insert(SpriteBundle {
@@ -50,7 +54,7 @@ pub fn spawn_player(mut commands: Commands, sprites: Res<SpriteAssets>) {
         })
         .insert(Player { score: 0 })
         .insert(Health::new(4.0))
-        .insert(Track::new(ROTATE_ACCEL, SPRITE_OFFSET))
+        .insert(Track::new(ROTATE_ACCEL, SPRITE_OFFSET).with_entity(cursor_coord_entity))
         .insert(Damage { amount: 4.0 })
         .insert(Scorer {
             player: player_entity,

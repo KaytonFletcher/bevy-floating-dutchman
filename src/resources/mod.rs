@@ -1,4 +1,6 @@
-mod game;
+mod assets;
 
-pub use game::SpriteAssets;
-pub use game::UIAssets;
+pub use assets::SpriteAssets;
+pub use assets::UIAssets;
+
+pub use assets::AssetLoadingPlugin;
