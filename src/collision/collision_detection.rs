@@ -95,8 +95,8 @@ fn publish_entity_killed(
     is_player: bool,
 ) {
     if is_player {
-        player_killed_event_writer.send(PlayerKilled(entity_killed))
+        player_killed_event_writer.send(PlayerKilled(entity_killed));
     } else {
-        entity_killed_event_writer.send(EntityKilled(entity_killed, entity_killing))
+        entity_killed_event_writer.send(EntityKilled(entity_killed, entity_killing));
     }
 }

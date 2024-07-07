@@ -8,25 +8,25 @@ use crate::{
 pub fn get_player_ship_input(
     mut player_query: Query<(&mut Motion, &Weapon, Entity), With<Player>>,
     mut weapon_fired: EventWriter<WeaponFired>,
-    keyboard_input: Res<Input<KeyCode>>,
-    buttons: Res<Input<MouseButton>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    buttons: Res<ButtonInput<MouseButton>>,
 ) {
     for (mut motion, weapon, entity) in player_query.iter_mut() {
         let mut direction: Vec2 = Vec2::ZERO;
 
-        if keyboard_input.pressed(KeyCode::A) {
+        if keyboard_input.pressed(KeyCode::KeyA) {
             direction.x -= 1.0;
         }
 
-        if keyboard_input.pressed(KeyCode::D) {
+        if keyboard_input.pressed(KeyCode::KeyD) {
             direction.x += 1.0;
         }
 
-        if keyboard_input.pressed(KeyCode::W) {
+        if keyboard_input.pressed(KeyCode::KeyW) {
             direction.y += 1.0;
         }
 
-        if keyboard_input.pressed(KeyCode::S) {
+        if keyboard_input.pressed(KeyCode::KeyS) {
             direction.y -= 1.0;
         }
 

@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use bevy_rapier2d::prelude::{RigidBody, Velocity};
+use bevy_rapier2d::prelude::*;
 
 pub fn wrap_around_screen_edge(
     mut query: Query<

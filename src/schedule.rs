@@ -15,7 +15,7 @@ impl Plugin for SchedulePlugin {
             MainSet::GamePlay.run_if(in_state(GameState::Playing)),
         )
         // Configuring the ordering of our gameplay loop using these main sets:
-        // Input -> Simulation -> Physics -> Collision
+        // Handle Input -> Simulation -> Physics -> Collision
         .configure_sets(
             Update,
             (

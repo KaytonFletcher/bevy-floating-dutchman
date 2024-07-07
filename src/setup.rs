@@ -1,8 +1,7 @@
 use bevy::{
     ecs::schedule::{LogLevel, ScheduleBuildSettings},
     prelude::*,
-    render::view::window,
-    window::{PrimaryWindow, WindowResolution},
+    window::WindowResolution,
 };
 
 use bevy_rapier2d::prelude::*;
@@ -40,14 +39,14 @@ impl Plugin for SetupPlugin {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
         // register states and events here
-        .add_state::<GameState>()
+        .init_state::<GameState>()
         .add_event::<WeaponFired>()
         .add_event::<EntityKilled>()
         .add_event::<PlayerKilled>()
         // one-time systems for setting up the world space
         // may be able to add these to startup schedule instead
         .add_systems(
-            OnExit(GameState::AssetLoading),
+            OnEnter(GameState::AssetLoading),
             (setup_camera, setup_rapier_physics, setup_cursor).chain(),
         )
         .add_systems(
