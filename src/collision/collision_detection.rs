@@ -20,38 +20,25 @@ pub fn handle_collisions(
         match collision_event {
             CollisionEvent::Started(e1, e2, _flag) => {
                 info!("Collision Event Started: {:?}, {:?}", e1, e2);
-                // If e1 has health and e2 deals damage, apply e2 damage to e1 health
-                if dealt_damage_and_is_dead(
-                    &mut damaged_query,
-                    &damager_query,
-                    e1,
-                    e2,
-                    &mut projectile_query,
-                ) {
-                    publish_entity_killed(
-                        &mut entity_killed_event_writer,
-                        &mut player_killed_event_writer,
-                        *e1,
-                        *e2,
-                        player_query.contains(*e1),
-                    )
-                }
 
-                // Reverses, now e1 is dealing damage to e2
-                if dealt_damage_and_is_dead(
-                    &mut damaged_query,
-                    &damager_query,
-                    e2,
-                    e1,
-                    &mut projectile_query,
-                ) {
-                    publish_entity_killed(
-                        &mut entity_killed_event_writer,
-                        &mut player_killed_event_writer,
-                        *e2,
-                        *e1,
-                        player_query.contains(*e2),
-                    )
+                // Perform collision from e1 -> e2 and e2 -> e1 so both have the others damage applied
+                for (e1, e2) in [(*e1, *e2), (*e2, *e1)] {
+                    // If e1 has health and e2 deals damage, apply e2 damage to e1 health
+                    if dealt_damage_and_is_dead(
+                        &mut damaged_query,
+                        &damager_query,
+                        e1,
+                        e2,
+                        &mut projectile_query,
+                    ) {
+                        publish_entity_killed(
+                            &mut entity_killed_event_writer,
+                            &mut player_killed_event_writer,
+                            e1,
+                            e2,
+                            player_query.contains(e1),
+                        )
+                    }
                 }
             }
 
@@ -65,15 +52,14 @@ pub fn handle_collisions(
 fn dealt_damage_and_is_dead(
     damaged_query: &mut Query<&mut Health>,
     damager_query: &Query<&Damage>,
-    e1: &Entity,
-    e2: &Entity,
+    e1: Entity,
+    e2: Entity,
     projectile_query: &mut Query<&mut Projectile>,
 ) -> bool {
-    return if let (Ok(mut health), Ok(damage)) =
-        (damaged_query.get_mut(*e1), damager_query.get(*e2))
+    return if let (Ok(mut health), Ok(damage)) = (damaged_query.get_mut(e1), damager_query.get(e2))
     {
         // If the damager is a projectile, only want to damage if it has "hits" left
-        if let Ok(mut projectile) = projectile_query.get_mut(*e2) {
+        if let Ok(mut projectile) = projectile_query.get_mut(e2) {
             if projectile.add_hit() {
                 health.damage(damage.amount)
             } else {

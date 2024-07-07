@@ -12,6 +12,7 @@ pub fn add_scores_from_killed(
     mut entities_killed: EventReader<EntityKilled>,
 ) {
     for EntityKilled(e1, e2) in entities_killed.read() {
+        println!("SCORE CHECK");
         if let Result::Ok(score) = score_query.get(*e1) {
             println!("Entity killed has a score: {}", score.score);
 
