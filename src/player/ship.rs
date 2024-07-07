@@ -2,7 +2,7 @@ use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
     components::{Motion, Player, Weapon},
-    labels::{events::WeaponFired, CursorCoordinates, MainCamera},
+    labels::{events::WeaponFired, states::GameState, CursorCoordinates, MainCamera},
 };
 
 pub fn get_player_ship_input(
@@ -72,4 +72,14 @@ pub fn update_cursor_position(
     {
         cursor_transform.translation = world_position.extend(0.0);
     }
+}
+
+// Once there are no entities with Player component, the game is over
+pub fn all_players_destroyed(
+    mut next_state: ResMut<NextState<GameState>>,
+    query: Query<(), With<Player>>,
+) {
+    if query.get_single().is_err() {
+        next_state.set(GameState::GameOver);
+    };
 }

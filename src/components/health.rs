@@ -30,13 +30,17 @@ impl Health {
     }
 
     // returns true if the damage applied takes health to zero
-    pub fn damage(&mut self, amount: f32) -> bool {
+    pub fn damage(&mut self, amount: f32) {
+        if self.current_health <= 0.0 {
+            println!("Warning: Health already zero or less and taking another hit");
+        }
         self.current_health -= amount;
         if self.current_health <= 0.0 {
             self.current_health = 0.0;
-            true
-        } else {
-            false
         }
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.current_health <= 0.0
     }
 }

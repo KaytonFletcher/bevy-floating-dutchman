@@ -31,7 +31,7 @@ pub fn spawn_projectile(
 
     entity_builder
         .insert(RigidBody::Dynamic)
-        .insert(Collider::ball(20.0))
+        .insert(Collider::ball(15.0))
         .insert(Sensor)
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(Velocity {
@@ -43,5 +43,5 @@ pub fn spawn_projectile(
         entity_builder.insert(Scorer { player: e1 });
     }
 
-    info!("Spawning Projectile: {:?}", entity_builder.id())
+    // info!("Spawning Projectile: {:?}", entity_builder.id())
 }

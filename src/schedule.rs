@@ -19,20 +19,16 @@ impl Plugin for SchedulePlugin {
         .configure_sets(
             Update,
             (
-                GamePlaySet::DespawnEntities.after(LoadingStateSet(GameState::AssetLoading)), // appease the system ordering gods
-                GamePlaySet::PlayerInput,
+                GamePlaySet::PlayerInput.after(LoadingStateSet(GameState::AssetLoading)), // appease the system ordering gods
                 GamePlaySet::Simulation,
+                // Make sure to despawn entities and flush before applying forces/collision
+                // Since 0.13, apply_deferred is automatically applied when a command is run in a system
+                GamePlaySet::DespawnEntities, 
                 GamePlaySet::Physics,
                 GamePlaySet::Collision,
             )
                 .chain()
                 .in_set(MainSet::GamePlay),
-        )
-        .add_systems(
-            Update,
-            apply_deferred
-                .after(GamePlaySet::DespawnEntities)
-                .before(GamePlaySet::PlayerInput),
         );
     }
 }

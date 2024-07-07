@@ -41,8 +41,8 @@ pub fn despawn_projectiles(
     for (entity, mut projectile) in query.iter_mut() {
         projectile.time_to_live.tick(time.delta());
         if projectile.time_to_live.finished() {
-            info!("Projectile Killed {:?}", entity);
-            commands.entity(entity).despawn();
+            // info!("Projectile Killed {:?}", entity);
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

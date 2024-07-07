@@ -7,4 +7,5 @@ pub enum GameState {
     SpawnPlayer,
     SpawnEnemies,
     Playing,
+    GameOver,
 }
