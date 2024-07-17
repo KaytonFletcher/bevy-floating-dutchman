@@ -17,6 +17,7 @@ pub fn publish_scores_from_killed(
         // Does the entity have a score? Emit an event for the player to receive the score
         if let Result::Ok(Score { score }) = score_query.get(*e1) {
             if let Result::Ok(Scorer { player }) = scorer_query.get(*e2) {
+                info!("Score published for entity killed {:?}", e1);
                 player_scored_event_writer.send(PlayerScored {
                     score: *score,
                     player: *player,

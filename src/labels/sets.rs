@@ -7,7 +7,8 @@ pub enum MainSet {
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
 pub enum GamePlaySet {
-    DespawnEntities,
+    Cleanup, // Runs before despawning an entity to apply death effects (player score, death anims, dropped loot, etc...)
+    DespawnEntities, // Despawn entities only! MUST happen before simulation of this new frame we are in!
     PlayerInput,
     Simulation, // Most game logic (queries modifying components)
     Physics,    // Apply forces using rapier based on simulation

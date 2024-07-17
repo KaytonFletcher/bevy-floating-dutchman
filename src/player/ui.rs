@@ -116,12 +116,11 @@ pub fn spawn_player_ui(
     game_state.set(GameState::SpawnEnemies);
 }
 
-pub fn update_player_ui(
+pub fn update_player_health_ui(
     mut hearts: Query<(&mut Visibility, &Heart)>,
-    mut scores: Query<&mut Text, With<ScoreUI>>,
-    player_query: Query<(&Health, &Player), Or<(Changed<Health>, Changed<Player>)>>,
+    player_query: Query<&Health, (Changed<Health>, With<Player>)>,
 ) {
-    for (health, player) in player_query.iter() {
+    for health in player_query.iter() {
         for (mut visible, heart) in hearts.iter_mut() {
             // all half and full hearts exist in the world and this logic determines which get drawn
             // at most one half heart of the players health will be visible (the last half)
@@ -134,7 +133,14 @@ pub fn update_player_ui(
                 Visibility::Hidden
             }
         }
+    }
+}
 
+pub fn update_player_score_ui(
+    mut scores: Query<&mut Text, With<ScoreUI>>,
+    player_query: Query<&Player, Changed<Player>>,
+) {
+    for player in player_query.iter() {
         for mut text in scores.iter_mut() {
             let score = player.score;
             text.sections[0].value = format!("{score}");
