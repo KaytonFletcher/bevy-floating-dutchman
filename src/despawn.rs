@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::Health,
-    labels::{events::EntityKilled, sets::GamePlaySet, states::GameState},
+    labels::{sets::GamePlaySet, states::GameState},
 };
 
 pub struct DespawnPlugin;
@@ -17,12 +17,11 @@ impl Plugin for DespawnPlugin {
     }
 }
 
-fn despawn_dead_entities(mut commands: Commands, mut entities_killed: EventReader<EntityKilled>) {
-    for EntityKilled(e1, _) in entities_killed.read() {
-        info!("Despawning dead enemy {:?}", e1);
-        // Some entities may be destroyed by other means
-        // Ex. This could have a race condition with Projectile TTL
-        commands.entity(*e1).despawn_recursive();
+fn despawn_dead_entities(mut commands: Commands, health_query: Query<(Entity, &Health)>) {
+    for (entity, Health { current_health, .. }) in health_query.iter() {
+        if *current_health <= 0.0 {
+            commands.entity(entity).despawn_recursive();
+        }
     }
 }
 

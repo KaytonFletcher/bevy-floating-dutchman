@@ -1,11 +1,17 @@
-use bevy::{prelude::*, transform::commands, window::PrimaryWindow};
+use std::cmp;
+
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
     components::{Motion, Player, Weapon},
-    labels::{events::WeaponFired, states::GameState, CursorCoordinates, MainCamera},
+    labels::{
+        events::{EntityDeath, PlayerDeath, WeaponFired},
+        states::GameState,
+        CursorCoordinates, MainCamera,
+    },
 };
 
-use super::ui::set_player_hearts_to_zero_on_death;
+use super::ui::Heart;
 
 pub fn get_player_ship_input(
     mut player_query: Query<(&mut Motion, &Weapon, Entity), With<Player>>,
@@ -76,14 +82,30 @@ pub fn update_cursor_position(
     }
 }
 
-// Once there are no entities with Player component, the game is over
-pub fn all_players_destroyed(
-    commands: Commands,
-    mut next_state: ResMut<NextState<GameState>>,
-    query: Query<(), With<Player>>,
+pub fn determine_player_death(
+    trigger: Trigger<EntityDeath>,
+    mut commands: Commands,
+    players: Query<(), With<Player>>,
 ) {
-    // commands.run_system(set_player_hearts_to_zero_on_death);
-    if query.is_empty() {
+    if players.get(trigger.entity()).is_ok() {
+        commands.trigger_targets(PlayerDeath, trigger.entity())
+    }
+}
+
+// Check for end game condition each time a player dies
+pub fn on_player_death(
+    _trigger: Trigger<PlayerDeath>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut hearts: Query<(&mut Visibility, &Heart)>,
+    remaining_players: Query<(), With<Player>>,
+) {
+    // Set all hearts in UI to hidden
+    for (mut visible, _) in hearts.iter_mut() {
+        *visible = Visibility::Hidden
+    }
+
+    // Once there are no entities with Player component, the game is over
+    if remaining_players.get_single().is_ok() {
         next_state.set(GameState::GameOver);
     };
 }

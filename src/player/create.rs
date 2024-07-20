@@ -2,9 +2,13 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::Motion,
-    components::{Damage, Health, Player, ProjectileBundle, Scorer, Track, Weapon},
+    components::{Damage, Health, Motion, Player, ProjectileBundle, Scorer, Track, Weapon},
+    damage::on_damage_taken,
     labels::CursorCoordinates,
+    player::{
+        score::add_scores_from_killed,
+        ship::{determine_player_death, on_player_death},
+    },
     resources::SpriteAssets,
 };
 
@@ -76,5 +80,9 @@ pub fn spawn_player(
         .insert(Damping {
             linear_damping: 0.5,
             angular_damping: 0.0,
-        });
+        })
+        .observe(add_scores_from_killed)
+        .observe(on_damage_taken)
+        .observe(determine_player_death)
+        .observe(on_player_death);
 }

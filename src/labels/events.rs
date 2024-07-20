@@ -4,10 +4,20 @@ use bevy::prelude::{Entity, Event};
 pub struct WeaponFired(pub Entity);
 
 #[derive(Event)]
-pub struct EntityKilled(pub Entity, pub Entity);
+pub struct DealDamage {
+    pub damage: f32,
+    pub cause: Entity,
+}
+
+#[derive(Event)]
+pub struct EntityDeath {
+    pub cause: Entity,
+}
+
+#[derive(Event)]
+pub struct PlayerDeath;
 
 #[derive(Event)]
 pub struct PlayerScored {
-    pub player: Entity,
     pub score: i32,
 }

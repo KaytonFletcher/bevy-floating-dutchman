@@ -5,6 +5,7 @@ use setup::SetupPlugin;
 
 mod collision;
 mod components;
+mod damage;
 mod debug;
 mod despawn;
 mod entities;

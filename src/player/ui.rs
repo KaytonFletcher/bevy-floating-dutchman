@@ -136,12 +136,6 @@ pub fn update_player_health_ui(
     }
 }
 
-pub fn set_player_hearts_to_zero_on_death(mut hearts: Query<(&mut Visibility, &Heart)>) {
-    for (mut visible, _) in hearts.iter_mut() {
-        *visible = Visibility::Hidden
-    }
-}
-
 pub fn update_player_score_ui(
     mut scores: Query<&mut Text, With<ScoreUI>>,
     player_query: Query<&Player, Changed<Player>>,

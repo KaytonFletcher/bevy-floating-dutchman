@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::components::{Scorer, Weapon};
+use crate::{
+    components::{Scorer, Weapon},
+    damage::on_damage_taken,
+};
 
 pub fn spawn_projectile(
     commands: &mut Commands,
@@ -37,7 +40,8 @@ pub fn spawn_projectile(
         .insert(Velocity {
             angvel: 0.0,
             linvel: direction.truncate() * 600.0,
-        });
+        })
+        .observe(on_damage_taken);
 
     if let Some(e1) = player_entity {
         entity_builder.insert(Scorer { player: e1 });

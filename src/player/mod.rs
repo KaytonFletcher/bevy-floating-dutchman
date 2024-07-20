@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{
-    entities,
-    labels::{sets::GamePlaySet, states::GameState},
-};
+use crate::labels::{sets::GamePlaySet, states::GameState};
 
+mod create;
 mod score;
 mod ship;
 mod ui;
@@ -15,7 +13,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             OnEnter(GameState::SpawnPlayer),
-            (entities::spawn_player, ui::spawn_player_ui).chain(),
+            (create::spawn_player, ui::spawn_player_ui).chain(),
         )
         // Always collect input from player before all other systems
         .add_systems(
@@ -25,15 +23,9 @@ impl Plugin for PlayerPlugin {
         )
         .add_systems(
             Update,
-            (
-                (ui::update_player_health_ui, ship::all_players_destroyed).chain(),
-                (score::add_scores_from_killed, ui::update_player_score_ui).chain(),
-            )
+            (ui::update_player_health_ui, ui::update_player_score_ui)
                 .in_set(GamePlaySet::Simulation),
         )
-        .add_systems(
-            Update,
-            score::publish_scores_from_killed.in_set(GamePlaySet::Cleanup),
-        );
+        .observe(score::publish_scores_from_killed);
     }
 }

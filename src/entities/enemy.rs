@@ -5,6 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     components::{Damage, EnemyBuilder, Follow, Motion, Player, ProjectileBundle, Track, Weapon},
+    damage::on_damage_taken,
     labels::states::GameState,
     resources::SpriteAssets,
 };
@@ -49,7 +50,8 @@ pub fn spawn_follow_enemy(
             })
             .with_score(10)
             .build(),
-        );
+        )
+        .observe(on_damage_taken);
 
     info!("Follow Enemy Entity: {:?}", enemy_builder.id());
     game_state.set(GameState::Playing)
@@ -113,7 +115,8 @@ pub fn spawn_shoot_enemy(
             })
             .with_score(20)
             .build(),
-        );
+        )
+        .observe(on_damage_taken);
 
     info!("Follow Shoot Entity: {:?}", enemy_builder.id());
 }

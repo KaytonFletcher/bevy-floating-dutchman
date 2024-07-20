@@ -2,39 +2,35 @@ use bevy::prelude::*;
 
 use crate::{
     components::{Player, Score, Scorer},
-    labels::events::{EntityKilled, PlayerScored},
+    labels::events::{EntityDeath, PlayerScored},
 };
 
 pub fn publish_scores_from_killed(
-    mut entities_killed: EventReader<EntityKilled>,
-    mut player_scored_event_writer: EventWriter<PlayerScored>,
+    trigger: Trigger<EntityDeath>,
+    mut commmands: Commands,
     score_query: Query<&Score>,
     scorer_query: Query<&Scorer>,
 ) {
-    for EntityKilled(e1, e2) in entities_killed.read() {
-        info!("Trying to publish score for entity killed {:?}", e1);
+    info!(
+        "Trying to publish score for entity killed {:?}",
+        trigger.entity()
+    );
 
-        // Does the entity have a score? Emit an event for the player to receive the score
-        if let Result::Ok(Score { score }) = score_query.get(*e1) {
-            if let Result::Ok(Scorer { player }) = scorer_query.get(*e2) {
-                info!("Score published for entity killed {:?}", e1);
-                player_scored_event_writer.send(PlayerScored {
-                    score: *score,
-                    player: *player,
-                });
-            }
+    // Does the entity have a score? Emit an event for the player to receive the score
+    if let Result::Ok(Score { score }) = score_query.get(trigger.entity()) {
+        if let Result::Ok(Scorer { player }) = scorer_query.get(trigger.event().cause) {
+            info!("Score published for entity killed {:?}", trigger.entity());
+            commmands.trigger_targets(PlayerScored { score: *score }, *player);
         }
     }
 }
 
 pub fn add_scores_from_killed(
-    mut player_scored_events: EventReader<PlayerScored>,
+    trigger: Trigger<PlayerScored>,
     mut player_query: Query<&mut Player>,
 ) {
-    for PlayerScored { player, score } in player_scored_events.read() {
-        if let Result::Ok(mut player) = player_query.get_mut(*player) {
-            player.score += score;
-            println!("Player score is now: {}", player.score)
-        }
+    if let Result::Ok(mut player) = player_query.get_mut(trigger.entity()) {
+        player.score += trigger.event().score;
+        println!("Player score is now: {}", player.score)
     }
 }
