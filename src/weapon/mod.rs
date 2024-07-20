@@ -1,6 +1,6 @@
 pub use bevy::prelude::*;
 
-use crate::labels::sets::GamePlaySet;
+use crate::labels::sets::{GamePlaySet, MovementSet};
 
 mod projectile;
 mod shoot;
@@ -18,7 +18,7 @@ impl Plugin for WeaponPlugin {
             (
                 shoot::tick_weapon_fire_rate,
                 shoot::fire_weapon_constantly,
-                projectile::spawn_projectiles_from_weapons_fired,
+                projectile::spawn_projectiles_from_weapons_fired.after(MovementSet),
             )
                 .chain()
                 .in_set(GamePlaySet::Simulation),

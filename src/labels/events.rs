@@ -7,9 +7,6 @@ pub struct WeaponFired(pub Entity);
 pub struct EntityKilled(pub Entity, pub Entity);
 
 #[derive(Event)]
-pub struct PlayerKilled(pub Entity);
-
-#[derive(Event)]
 pub struct PlayerScored {
     pub player: Entity,
     pub score: i32,

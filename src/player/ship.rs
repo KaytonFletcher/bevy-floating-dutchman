@@ -1,9 +1,11 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, transform::commands, window::PrimaryWindow};
 
 use crate::{
     components::{Motion, Player, Weapon},
     labels::{events::WeaponFired, states::GameState, CursorCoordinates, MainCamera},
 };
+
+use super::ui::set_player_hearts_to_zero_on_death;
 
 pub fn get_player_ship_input(
     mut player_query: Query<(&mut Motion, &Weapon, Entity), With<Player>>,
@@ -76,10 +78,12 @@ pub fn update_cursor_position(
 
 // Once there are no entities with Player component, the game is over
 pub fn all_players_destroyed(
+    commands: Commands,
     mut next_state: ResMut<NextState<GameState>>,
     query: Query<(), With<Player>>,
 ) {
-    if query.get_single().is_err() {
+    // commands.run_system(set_player_hearts_to_zero_on_death);
+    if query.is_empty() {
         next_state.set(GameState::GameOver);
     };
 }

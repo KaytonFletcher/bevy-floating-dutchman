@@ -26,10 +26,8 @@ impl Plugin for PlayerPlugin {
         .add_systems(
             Update,
             (
-                ship::all_players_destroyed,
-                score::add_scores_from_killed,
-                ui::update_player_health_ui,
-                ui::update_player_score_ui,
+                (ui::update_player_health_ui, ship::all_players_destroyed).chain(),
+                (score::add_scores_from_killed, ui::update_player_score_ui).chain(),
             )
                 .in_set(GamePlaySet::Simulation),
         )

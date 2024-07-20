@@ -14,3 +14,6 @@ pub enum GamePlaySet {
     Physics,    // Apply forces using rapier based on simulation
     Collision,  // Finally detect collisions using rapier based on forces applied
 }
+
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct MovementSet;

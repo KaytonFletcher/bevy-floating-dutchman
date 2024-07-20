@@ -9,7 +9,7 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     entities,
     labels::{
-        events::{EntityKilled, PlayerKilled, PlayerScored, WeaponFired},
+        events::{EntityKilled, PlayerScored, WeaponFired},
         states::GameState,
         CursorCoordinates, MainCamera,
     },
@@ -42,7 +42,6 @@ impl Plugin for SetupPlugin {
         .init_state::<GameState>()
         .add_event::<WeaponFired>()
         .add_event::<EntityKilled>()
-        .add_event::<PlayerKilled>()
         .add_event::<PlayerScored>()
         // one-time systems for setting up the world space
         // may be able to add these to startup schedule instead

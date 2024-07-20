@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::labels::sets::GamePlaySet;
+use crate::labels::sets::{GamePlaySet, MovementSet};
 
 mod follow;
 mod force;
@@ -14,14 +14,12 @@ impl Plugin for MovementPlugin {
             Update,
             // Track systems run in a strict order
             (
-                (
-                    track::update_tracked_positions,
-                    track::update_track_direction,
-                )
-                    .chain()
-                    .ambiguous_with(follow::update_follow_direction),
-                (follow::update_follow_direction,),
+                track::update_tracked_positions,
+                track::update_track_direction,
+                follow::update_follow_direction,
             )
+                .chain()
+                .in_set(MovementSet)
                 .in_set(GamePlaySet::Simulation),
         )
         .add_systems(
