@@ -1,5 +1,3 @@
-use std::cmp;
-
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::{
@@ -16,10 +14,16 @@ use super::ui::Heart;
 pub fn get_player_ship_input(
     mut player_query: Query<(&mut Motion, &Weapon, Entity), With<Player>>,
     mut weapon_fired: EventWriter<WeaponFired>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut game_state: ResMut<NextState<GameState>>,
+    mut keyboard_input: ResMut<ButtonInput<KeyCode>>,
     buttons: Res<ButtonInput<MouseButton>>,
 ) {
     for (mut motion, weapon, entity) in player_query.iter_mut() {
+        if keyboard_input.clear_just_pressed(KeyCode::Escape) {
+            game_state.set(GameState::Paused);
+            return;
+        }
+
         let mut direction: Vec2 = Vec2::ZERO;
 
         if keyboard_input.pressed(KeyCode::KeyA) {

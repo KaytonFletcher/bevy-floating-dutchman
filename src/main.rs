@@ -1,4 +1,5 @@
 use bevy::prelude::App;
+use menus::MenuPlugin;
 use resources::AssetLoadingPlugin;
 use schedule::SchedulePlugin;
 use setup::SetupPlugin;
@@ -10,6 +11,7 @@ mod debug;
 mod despawn;
 mod entities;
 mod labels;
+mod menus;
 mod movement;
 mod player;
 mod resources;
@@ -25,6 +27,9 @@ fn main() {
         .add_plugins(AssetLoadingPlugin)
         // Set up world: camera, physics settings, etc...
         .add_plugins(SetupPlugin)
+        // Create menus and run logic related to them,
+        // we consider this outside "game systems"
+        .add_plugins(MenuPlugin)
         // Configure schedule of game systems
         .add_plugins(SchedulePlugin)
         .add_plugins((
